@@ -1,4 +1,4 @@
-import { createDomElement, updateDomProperties } from "./DomUtils";
+import { createDomElement, updateDomElementProperties } from "./DomUtils";
 import { createInstance } from "./Component";
 import { CLASS_COMPONENT, DELETION, ENOUGH_TIME, HOST_COMPONENT, HOST_ROOT, PLACEMENT, UPDATE } from "./Constants";
 
@@ -54,18 +54,18 @@ function resetNextUnitOfWork() {
   if (update.partialState) {
     update.instance.__fiber.partialState = update.partialState;
   }
-
-  const root =
+  const oldFiberTreeRoot =
     update.from === HOST_ROOT
       ? update.dom._rootContainerFiber
       : getRoot(update.instance.__fiber);
 
   nextUnitOfWork = {
     tag: HOST_ROOT,
-    stateNode: update.dom || root.stateNode,
-    props: update.newProps || root.props,
-    alternate: root
+    stateNode: update.dom || oldFiberTreeRoot.stateNode,
+    props: update.newProps || oldFiberTreeRoot.props,
+    alternate: oldFiberTreeRoot
   };
+
 }
 
 function getRoot(fiber) {
@@ -73,17 +73,20 @@ function getRoot(fiber) {
   while (node.parent) {
     node = node.parent;
   }
+
   return node;
 }
 
-function performUnitOfWork(wipFiber) {
-  beginWork(wipFiber);
-  if (wipFiber.child) {
-    return wipFiber.child;
+function performUnitOfWork(workInProgressFiber) {
+
+  //есть дочерний -работаем с ним, нет - работаем с соседним, нет - берем соседа родителя и т.д
+  beginWork(workInProgressFiber);
+  if (workInProgressFiber.child) {
+    return workInProgressFiber.child;
   }
 
   // No child, we call completeWork until we find a sibling
-  let uow = wipFiber;
+  let uow = workInProgressFiber;
   while (uow) {
     completeWork(uow);
     if (uow.sibling) {
@@ -94,46 +97,46 @@ function performUnitOfWork(wipFiber) {
   }
 }
 
-function beginWork(wipFiber) {
-  if (wipFiber.tag === CLASS_COMPONENT) {
-    updateClassComponent(wipFiber);
+function beginWork(workInProgressFiber) {
+  if (workInProgressFiber.tag === CLASS_COMPONENT) {
+    updateClassComponent(workInProgressFiber);
   } else {
-    updateHostComponent(wipFiber);
+    updateHostComponent(workInProgressFiber);
   }
 }
 
-function updateHostComponent(wipFiber) {
-  if (!wipFiber.stateNode) {
-    wipFiber.stateNode = createDomElement(wipFiber);
+function updateHostComponent(workInProgressFiber) {
+  if (!workInProgressFiber.stateNode) {
+    workInProgressFiber.stateNode = createDomElement(workInProgressFiber);
   }
 
-  const newChildElements = wipFiber.props.children;
-  reconcileChildrenArray(wipFiber, newChildElements);
+  const newChildElements = workInProgressFiber.props.children;
+  reconcileChildrenArray(workInProgressFiber, newChildElements);
 }
 
-function updateClassComponent(wipFiber) {
-  let instance = wipFiber.stateNode;
+function updateClassComponent(workInProgressFiber) {
+  let instance = workInProgressFiber.stateNode;
   if (instance == null) {
     // Call class constructor
-    instance = wipFiber.stateNode = createInstance(wipFiber);
-  } else if (wipFiber.props === instance.props && !wipFiber.partialState) {
+    instance = workInProgressFiber.stateNode = createInstance(workInProgressFiber);
+  } else if (workInProgressFiber.props === instance.props && !workInProgressFiber.partialState) {
     // No need to render, clone children from last time
-    cloneChildFibers(wipFiber);
+    cloneChildFibers(workInProgressFiber);
     return;
   }
 
-  instance.props = wipFiber.props;
-  instance.state = { ...instance.state, ...wipFiber.partialState };
-  wipFiber.partialState = null;
+  instance.props = workInProgressFiber.props;
+  instance.state = { ...instance.state, ...workInProgressFiber.partialState };
+  workInProgressFiber.partialState = null;
 
-  const newChildElements = wipFiber.stateNode.render();
-  reconcileChildrenArray(wipFiber, newChildElements);
+  const newChildElements = workInProgressFiber.stateNode.render();
+  reconcileChildrenArray(workInProgressFiber, newChildElements);
 }
 
-function reconcileChildrenArray(wipFiber, newChildElements) {
+function reconcileChildrenArray(workInProgressFiber, newChildElements) {
   const elements = [].concat(newChildElements);
   let index = 0;
-  let oldFiber = wipFiber.alternate ? wipFiber.alternate.child : null;
+  let oldFiber = workInProgressFiber.alternate ? workInProgressFiber.alternate.child : null;
   let newFiber = null;
   while (index < elements.length || oldFiber != null) {
     const prevFiber = newFiber;
@@ -146,7 +149,7 @@ function reconcileChildrenArray(wipFiber, newChildElements) {
         tag: oldFiber.tag,
         stateNode: oldFiber.stateNode,
         props: element.props,
-        parent: wipFiber,
+        parent: workInProgressFiber,
         alternate: oldFiber,
         partialState: oldFiber.partialState,
         effectTag: UPDATE
@@ -159,15 +162,15 @@ function reconcileChildrenArray(wipFiber, newChildElements) {
         tag:
           typeof element.type === "string" ? HOST_COMPONENT : CLASS_COMPONENT,
         props: element.props,
-        parent: wipFiber,
+        parent: workInProgressFiber,
         effectTag: PLACEMENT
       };
     }
 
     if (oldFiber && !sameType) {
       oldFiber.effectTag = DELETION;
-      wipFiber.effects = wipFiber.effects || [];
-      wipFiber.effects.push(oldFiber);
+      workInProgressFiber.effects = workInProgressFiber.effects || [];
+      workInProgressFiber.effects.push(oldFiber);
     }
 
     if (oldFiber) {
@@ -175,7 +178,7 @@ function reconcileChildrenArray(wipFiber, newChildElements) {
     }
 
     if (index === 0) {
-      wipFiber.child = newFiber;
+      workInProgressFiber.child = newFiber;
     } else if (prevFiber && element) {
       prevFiber.sibling = newFiber;
     }
@@ -250,7 +253,7 @@ function commitWork(fiber) {
   if (fiber.effectTag === PLACEMENT && fiber.tag === HOST_COMPONENT) {
     domParent.appendChild(fiber.stateNode);
   } else if (fiber.effectTag === UPDATE) {
-    updateDomProperties(fiber.stateNode, fiber.alternate.props, fiber.props);
+    updateDomElementProperties(fiber.stateNode, fiber.alternate.props, fiber.props);
   } else if (fiber.effectTag === DELETION) {
     commitDeletion(fiber, domParent);
   }

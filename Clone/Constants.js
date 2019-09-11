@@ -5,14 +5,14 @@ const CHILDREN = "children";
 const STYLE = "style";
 
 // Fiber tags
-const HOST_ROOT = 1;
-const CLASS_COMPONENT = 2;
-const HOST_COMPONENT = 3;
+const HOST_ROOT = "host_root";
+const CLASS_COMPONENT = "class_component";
+const HOST_COMPONENT = "host_component";
 
 // Effect tags
-const PLACEMENT = 1;
-const DELETION = 2;
-const UPDATE = 3;
+const PLACEMENT = "placement";
+const DELETION = "deletion";
+const UPDATE = "update";
 
 const ENOUGH_TIME = 1;
 

@@ -5,14 +5,14 @@ const isAttribute = name => !isEvent(name) && name !== CHILDREN && name !== STYL
 const isNew = (prev, next) => key => prev[key] !== next[key];
 const isGone = (prev, next) => key => !(key in next);
 
-function updateDomProperties(dom, prevProps, nextProps) {
+function updateDomElementProperties(domElement, prevProps, nextProps) {
   // Remove event listeners
   Object.keys(prevProps)
     .filter(isEvent)
     .filter(key => isGone(prevProps, nextProps)(key) || isNew(prevProps, nextProps)(key))
     .forEach(name => {
       const eventType = name.toLowerCase().substring(2);
-      dom.removeEventListener(eventType, prevProps[name]);
+      domElement.removeEventListener(eventType, prevProps[name]);
     });
 
   // Add event listeners
@@ -21,7 +21,7 @@ function updateDomProperties(dom, prevProps, nextProps) {
     .filter(isNew(prevProps, nextProps))
     .forEach(name => {
       const eventType = name.toLowerCase().substring(2);
-      dom.addEventListener(eventType, nextProps[name]);
+      domElement.addEventListener(eventType, nextProps[name]);
     });
 
   // Remove attributes
@@ -29,7 +29,7 @@ function updateDomProperties(dom, prevProps, nextProps) {
     .filter(isAttribute)
     .filter(isGone(prevProps, nextProps))
     .forEach(name => {
-      delete dom[name];
+      delete domElement[name];
     });
 
   // Set attributes
@@ -37,7 +37,7 @@ function updateDomProperties(dom, prevProps, nextProps) {
     .filter(isAttribute)
     .filter(isNew(prevProps, nextProps))
     .forEach(name => {
-      dom[name] = nextProps[name];
+      domElement[name] = nextProps[name];
     });
 
   // Style
@@ -48,14 +48,14 @@ function updateDomProperties(dom, prevProps, nextProps) {
   Object.keys(prevStyle)
     .filter(isGone(prevStyle, nextStyle))
     .forEach(key => {
-      dom.style[key] = "";
+      domElement.style[key] = "";
     });
 
   //Set style
   Object.keys(nextStyle)
     .filter(isNew(prevStyle, nextStyle))
     .forEach(key => {
-      dom.style[key] = nextStyle[key];
+      domElement.style[key] = nextStyle[key];
     });
 
 }
@@ -65,9 +65,9 @@ function createDomElement(fiber) {
   const domElement = isTextElement
     ? document.createTextNode(fiber.props.nodeValue)
     : document.createElement(fiber.type);
-  isTextElement || updateDomProperties(domElement, [], fiber.props);
+  isTextElement || updateDomElementProperties(domElement, [], fiber.props);
 
   return domElement;
 }
 
-export { updateDomProperties, createDomElement };
+export { updateDomElementProperties, createDomElement };

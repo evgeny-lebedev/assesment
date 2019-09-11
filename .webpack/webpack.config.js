@@ -43,7 +43,7 @@ module.exports = {
       template: path.resolve(__dirname, "./../public/index.html"),
     }),
   ],
-  // devServer: {
-  //   port: 3000
-  // }
+  devServer: {
+    port: 3000
+  }
 };
