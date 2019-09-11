@@ -7,11 +7,11 @@ const updateQueue = [];
 let nextUnitOfWork = null;
 let pendingCommit = null;
 
-function render(elements, containerDom) {
+function render(element, containerDom) {
   updateQueue.push({
     from: HOST_ROOT,
     dom: containerDom,
-    newProps: { children: elements }
+    newProps: { children: element }
   });
   requestIdleCallback(performWork);
 }
@@ -58,14 +58,12 @@ function resetNextUnitOfWork() {
     update.from === HOST_ROOT
       ? update.dom._rootContainerFiber
       : getRoot(update.instance.__fiber);
-
   nextUnitOfWork = {
     tag: HOST_ROOT,
     stateNode: update.dom || oldFiberTreeRoot.stateNode,
     props: update.newProps || oldFiberTreeRoot.props,
     alternate: oldFiberTreeRoot
   };
-
 }
 
 function getRoot(fiber) {
@@ -157,8 +155,7 @@ function reconcileChildrenArray(workInProgressFiber, newChildElements) {
     if (element && !sameType) {
       newFiber = {
         type: element.type,
-        tag:
-          typeof element.type === "string" ? HOST_COMPONENT : CLASS_COMPONENT,
+        tag: typeof element.type === "string" ? HOST_COMPONENT : CLASS_COMPONENT,
         props: element.props,
         parent: workInProgressFiber,
         effectTag: PLACEMENT
