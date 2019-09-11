@@ -137,6 +137,7 @@ export function importFromBelow() {
   }
 
   function scheduleUpdate(instance, partialState) {
+    console.log(instance)
     updateQueue.push({
       from: CLASS_COMPONENT,
       instance: instance,
