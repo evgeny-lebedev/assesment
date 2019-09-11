@@ -1,0 +1,25 @@
+{
+  "name": "swn-design",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "author": "Evgeny Lebedev",
+  "license": "MIT",
+  "scripts": {
+    "build": "webpack --config .webpack/webpack.config.js",
+    "dev-server": "webpack-dev-server --config .webpack/webpack.config.js"
+  },
+  "devDependencies": {
+    "webpack": "^4.39.3",
+    "webpack-cli": "^3.3.7"
+  },
+  "dependencies": {
+    "@babel/core": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "babel-loader": "^8.0.6",
+    "css-loader": "^3.2.0",
+    "date-fns": "^2.0.1",
+    "html-webpack-plugin": "^3.2.0",
+    "style-loader": "^1.0.0",
+    "webpack-dev-server": "^3.8.0"
+  }
+}
