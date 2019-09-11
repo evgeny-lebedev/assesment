@@ -78,8 +78,6 @@ function getRoot(fiber) {
 }
 
 function performUnitOfWork(workInProgressFiber) {
-
-  //есть дочерний -работаем с ним, нет - работаем с соседним, нет - берем соседа родителя и т.д
   beginWork(workInProgressFiber);
   if (workInProgressFiber.child) {
     return workInProgressFiber.child;
