@@ -35,12 +35,27 @@ class App extends Clone.Component {
 class Story extends Clone.Component {
   constructor(props) {
     super(props);
-    this.state = { likes: Math.ceil(Math.random() * 100) };
+    this.state = {
+      likes: Math.ceil(Math.random() * 100), links: [Clone.createElement(
+        'a',
+        {
+          href: props.url,
+        },
+        props.name
+      )],
+    };
   }
 
   like() {
     this.setState({
-      likes: this.state.likes + 1
+      likes: this.state.likes + 1,
+      links: [(Clone.createElement(
+        'a',
+        {
+          href: this.props.url,
+        },
+        "Link"
+      )), ...this.state.links]
     });
   }
 
@@ -53,17 +68,12 @@ class Story extends Clone.Component {
       Clone.createElement(
         'button',
         {
-          onClick: () => this.like()
+          onClick: () => this.like(),
         },
         likes
       ),
-      Clone.createElement(
-        'a',
-        {
-          href: url,
-        },
-        name
-      )
+
+      ...this.state.links
     );
   }
 }
