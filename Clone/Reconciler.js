@@ -1,4 +1,5 @@
 import { createDomElement, updateDomElementProperties } from "./DomUtils";
+import { createInstance } from "./Component";
 import { CLASS_COMPONENT, DELETION, ENOUGH_TIME, HOST_COMPONENT, HOST_ROOT, PLACEMENT, UPDATE } from "./Constants";
 
 // Global state
@@ -6,11 +7,11 @@ const updateQueue = [];
 let nextUnitOfWork = null;
 let pendingCommit = null;
 
-function render(elements, containerDom) {
+function render(element, containerDom) {
   updateQueue.push({
     from: HOST_ROOT,
     dom: containerDom,
-    newProps: { children: elements }
+    newProps: { children: element }
   });
   requestIdleCallback(performWork);
 }
@@ -38,11 +39,9 @@ function workLoop(deadline) {
   while (nextUnitOfWork && deadline.timeRemaining() > ENOUGH_TIME) {
     nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
   }
-
   if (pendingCommit) {
     commitAllWork(pendingCommit);
   }
-  console.log(nextUnitOfWork)
 }
 
 function resetNextUnitOfWork() {
@@ -50,6 +49,7 @@ function resetNextUnitOfWork() {
   if (!update) {
     return;
   }
+
   // Copy the setState parameter from the update payload to the corresponding fiber
   if (update.partialState) {
     update.instance.__fiber.partialState = update.partialState;
@@ -64,7 +64,6 @@ function resetNextUnitOfWork() {
     props: update.newProps || oldFiberTreeRoot.props,
     alternate: oldFiberTreeRoot
   };
-  console.log(nextUnitOfWork)
 }
 
 function getRoot(fiber) {
@@ -81,6 +80,7 @@ function performUnitOfWork(workInProgressFiber) {
   if (workInProgressFiber.child) {
     return workInProgressFiber.child;
   }
+
   // No child, we call completeWork until we find a sibling
   let uow = workInProgressFiber;
   while (uow) {
@@ -124,15 +124,9 @@ function updateClassComponent(workInProgressFiber) {
   instance.props = workInProgressFiber.props;
   instance.state = { ...instance.state, ...workInProgressFiber.partialState };
   workInProgressFiber.partialState = null;
+
   const newChildElements = workInProgressFiber.stateNode.render();
   reconcileChildrenArray(workInProgressFiber, newChildElements);
-}
-
-function createInstance(fiber) {
-  const instance = new fiber.type(fiber.props);
-  instance.__fiber = fiber;
-
-  return instance;
 }
 
 function reconcileChildrenArray(workInProgressFiber, newChildElements) {
@@ -161,8 +155,7 @@ function reconcileChildrenArray(workInProgressFiber, newChildElements) {
     if (element && !sameType) {
       newFiber = {
         type: element.type,
-        tag:
-          typeof element.type === "string" ? HOST_COMPONENT : CLASS_COMPONENT,
+        tag: typeof element.type === "string" ? HOST_COMPONENT : CLASS_COMPONENT,
         props: element.props,
         parent: workInProgressFiber,
         effectTag: PLACEMENT
@@ -278,19 +271,5 @@ function commitDeletion(fiber, domParent) {
     node = node.sibling;
   }
 }
-//
-// function useState(instance, initialValue) {
-//   let value = initialValue;
-//
-//   function state() {
-//     return value;
-//   }
-//
-//   function setState(newValue) {
-//     value = newValue;
-//   }
-//
-//   return [state, setState];
-// }
 
 export { scheduleUpdate, render };
