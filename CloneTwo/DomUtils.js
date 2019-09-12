@@ -1,42 +1,81 @@
-const isEvent = name => name.startsWith("on");
-const isAttribute = name => !isEvent(name) && name != "children";
+import { CHILDREN, ON, STYLE, TEXT_ELEMENT } from "./Constants";
 
-function updateDomProperties(dom, prevProps, nextProps) {
+const isEvent = name => name.startsWith(ON);
 
+const isAttribute = name => !isEvent(name) && name !== CHILDREN && name !== STYLE;
+
+const isNew = (prev, next) => key => prev[key] !== next[key];
+
+const isGone = (prev, next) => key => !(key in next);
+
+function updateDomElementProperties(domElement, prevProps, nextProps) {
   // Remove event listeners
-  Object.keys(prevProps).filter(isEvent).forEach(name => {
-    const eventType = name.toLowerCase().substring(2);
-    dom.removeEventListener(eventType, prevProps[name]);
-  });
+  Object.keys(prevProps)
+    .filter(isEvent)
+    .filter(key => isGone(prevProps, nextProps)(key) || isNew(prevProps, nextProps)(key))
+    .forEach(name => {
+      const eventType = name.toLowerCase().substring(2);
+      domElement.removeEventListener(eventType, prevProps[name]);
+    });
 
   // Add event listeners
-  Object.keys(nextProps).filter(isEvent).forEach(name => {
-    const eventType = name.toLowerCase().substring(2);
-    dom.addEventListener(eventType, nextProps[name]);
-  });
+  Object.keys(nextProps)
+    .filter(isEvent)
+    .filter(isNew(prevProps, nextProps))
+    .forEach(name => {
+      const eventType = name.toLowerCase().substring(2);
+      domElement.addEventListener(eventType, nextProps[name]);
+    });
 
   // Remove attributes
-  Object.keys(prevProps).filter(isAttribute).forEach(name => {
-    dom[name] = null;
-  });
+  Object.keys(prevProps)
+    .filter(isAttribute)
+    .filter(isGone(prevProps, nextProps))
+    .forEach(name => {
+      delete domElement[name];
+    });
 
   // Set attributes
-  Object.keys(nextProps).filter(isAttribute).forEach(name => {
-    dom[name] = nextProps[name];
-  });
+  Object.keys(nextProps)
+    .filter(isAttribute)
+    .filter(isNew(prevProps, nextProps))
+    .forEach(name => {
+      domElement[name] = nextProps[name];
+    });
+
+  // Style
+  const prevStyle = prevProps.style || {};
+
+  const nextStyle = nextProps.style || {};
+
+  // Remove style
+  Object.keys(prevStyle)
+    .filter(isGone(prevStyle, nextStyle))
+    .forEach(key => {
+      domElement.style[key] = "";
+    });
+
+  //Set style
+  Object.keys(nextStyle)
+    .filter(isNew(prevStyle, nextStyle))
+    .forEach(key => {
+      domElement.style[key] = nextStyle[key];
+    });
+
 }
 
 function createDomElement(element) {
-  const { type, props } = element;
+  const isTextElement = element.type === TEXT_ELEMENT;
 
-  const isTextElement = type === "TEXT ELEMENT";
-  const dom = isTextElement
-    ? document.createTextNode("")
-    : document.createElement(type);
+  const domElement = isTextElement
+    ? document.createTextNode(element.props.nodeValue)
+    : document.createElement(element.type);
 
-  updateDomProperties(dom, [], props);
+  if (!isTextElement) {
+    updateDomElementProperties(domElement, [], element.props);
+  }
 
-  return dom;
+  return domElement;
 }
 
-export { updateDomProperties, createDomElement }
+export { updateDomElementProperties, createDomElement }

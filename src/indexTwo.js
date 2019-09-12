@@ -8,96 +8,83 @@ const stories = [
   { name: "Components and state", url: "http://bit.ly/2rE16nh" }
 ];
 
-function App(props) {
+class App extends Clone.Component {
+  render() {
+    return (
+      Clone.createElement(
+        'div',
+        {},
+        Clone.createElement(
+          'h1',
+          {}
+        ),
+        Clone.createElement(
+          'ul',
+          {},
+          this.props.stories.map(story => Clone.createElement(
+            Story,
+            {
+              ...story
+            },
+          ))
+        ))
+    );
+  }
+}
 
-  return (
-    Clone.createElement(
-      'div',
+class Story extends Clone.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      likes: Math.ceil(Math.random() * 100), links: [Clone.createElement(
+        'a',
+        {
+          href: props.url,
+        },
+        props.name
+      )],
+    };
+  }
+
+  like() {
+    this.setState({
+      likes: this.state.likes + 1,
+      links: [(Clone.createElement(
+        'a',
+        {
+          href: this.props.url,
+        },
+        "Link"
+      )), ...this.state.links]
+    });
+  }
+
+  render() {
+    const { name, url } = this.props;
+    const { likes } = this.state;
+    return Clone.createElement(
+      'li',
       {},
       Clone.createElement(
-        'h1',
-        {}
-      ),
-      Clone.createElement(
-        'input',
+        'button',
         {
-          type: "checkbox",
-          checked: true,
-        }
+          onClick: () => this.like(),
+        },
+        likes
       ),
-      Clone.createElement(
-        'ul',
-        {},
-        props.stories.map(story => Story({story}))
-      ))
-  )
-    ;
+
+      ...this.state.links
+    );
+  }
 }
-
-// class App {
-//
-//   constructor(props) {
-//     this.props = props;
-//   }
-//
-//   render() {
-//
-//     return (
-//       Clone.createElement(
-//         'div',
-//         {},
-//         Clone.createElement(
-//           'h1',
-//           {}
-//         ),
-//         Clone.createElement(
-//           'ul',
-//           {},
-//           this.props.stories.map(story => Clone.createElement(
-//             Story,
-//             {
-//               ...story
-//             },
-//           ))
-//         ))
-//     );
-//   }
-// }
-
-function Story(props) {
-
-  return Clone.createElement(
-    'li',
-    {},
-    Clone.createElement(
-      'button',
-      {
-        onClick: () => console.log(1),
-      },
-      "button"
-    ),
-  );
-}
-
-// class Story {
-//
-//
-//   render() {
-//     return Clone.createElement(
-//       'li',
-//       {},
-//       Clone.createElement(
-//         'button',
-//         {
-//           onClick: () => console.log(1),
-//         },
-//         "123"
-//       ),
-//     );
-//   }
-// }
 
 Clone.render(
-  App({stories}),
+  Clone.createElement(
+    App,
+    {
+      stories
+    },
+  ),
   document.getElementById("root")
 );
+

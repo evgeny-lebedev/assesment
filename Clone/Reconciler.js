@@ -10,7 +10,7 @@ let pendingCommit = null;
 function render(element, containerDom) {
   updateQueue.push({
     from: HOST_ROOT,
-    dom: containerDom,
+    domElement: containerDom,
     newProps: { children: element }
   });
   requestIdleCallback(performWork);

@@ -1,13 +1,14 @@
-const TEXT_ELEMENT = "TEXT ELEMENT";
-
+import { TEXT_ELEMENT } from "./Constants";
 
 function createElement(type, config, ...args) {
-  const props = Object.assign({}, config);
-  const hasChildren = args.length > 0;
-  const rawChildren = hasChildren ? [].concat(...args) : [];
-  props.children = rawChildren
-    .filter(c => c != null && c !== false)
-    .map(c => c instanceof Object ? c : createTextElement(c));
+  const props = { ...config };
+
+  const rawChildren = [].concat(...args);
+
+  const filteredChildren = rawChildren.filter(child => child);
+
+  props.children = filteredChildren.map(child => child instanceof Object ? child : createTextElement(child));
+
   return { type, props };
 }
 

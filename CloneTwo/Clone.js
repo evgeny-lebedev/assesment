@@ -1,24 +1,15 @@
 import { createElement } from "./Element";
 import { reconcile } from "./Reconcile";
+import { useState } from "./CreateInstance";
+import { Component } from "./Component";
 
 let rootInstance = null;
 
-function importFromBelow() {
-
-  function render(element, container) {
-    const prevInstance = rootInstance;
-    const nextInstance = reconcile(container, prevInstance, element);
-    rootInstance = nextInstance;
-  }
-
-  return {
-    render,
-    createElement
-  };
+function render(element, container) {
+  rootInstance = reconcile(container, rootInstance, element);
 }
 
-
-const Clone = importFromBelow();
+const Clone = { createElement, render, useState, Component };
 
 export default Clone;
 
