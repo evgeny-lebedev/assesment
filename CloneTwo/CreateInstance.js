@@ -2,26 +2,14 @@ import { createDomElement } from "./DomUtils";
 import { reconcile } from "./Reconcile";
 
 function createInstance(element) {
-  const isDomElement = typeof element.type === "string";
+  if (element == null) {
+    return null;
+  }
 
-  if (isDomElement) {
-    // Create DOM element
-    const domElement = createDomElement(element);
+  const isComponent = typeof element.type === "function";
 
-    // Instantiate and append children
+  if (isComponent) {
 
-    const childElements = element.props.children || [];
-
-    const childInstances = childElements.map(createInstance);
-
-    childInstances.forEach(childInstance => domElement.appendChild(childInstance.domElement));
-
-    const instance = { domElement, element, childInstances };
-
-    return instance;
-  } else {
-
-    // Instantiate component element
     const instance = {};
 
     const componentInstance = createComponentInstance(element, instance);
@@ -30,9 +18,37 @@ function createInstance(element) {
 
     const childInstance = createInstance(childElement);
 
+    if (childInstance == null) {
+
+      return null;
+    }
+
     const domElement = childInstance.domElement;
 
     Object.assign(instance, { domElement, element, childInstance, componentInstance });
+
+    return instance;
+
+  } else {
+
+    const domElement = createDomElement(element);
+
+    const childElements = element.props.children || [];
+
+    const childInstances = childElements.map(createInstance);
+
+    const filteredChildInstances = childInstances.filter(childInstance => childInstance !== null);
+
+    filteredChildInstances.forEach(childInstance => {
+
+      domElement.appendChild(childInstance.domElement);
+
+      if (childInstance.componentInstance) {
+        childInstance.componentInstance.componentDidMount();
+      }
+    });
+
+    const instance = { domElement, element, childInstances };
 
     return instance;
   }
@@ -49,7 +65,6 @@ function createComponentInstance(element, instance) {
 }
 
 function updateInstance(instance) {
-
   const parentDom = instance.domElement.parentNode;
 
   const element = instance.element;
