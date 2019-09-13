@@ -65,6 +65,7 @@ function updateDomElementProperties(domElement, prevProps, nextProps) {
 }
 
 function createDomElement(element) {
+
   const isTextElement = element.type === TEXT_ELEMENT;
 
   const domElement = isTextElement

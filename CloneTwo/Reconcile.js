@@ -83,6 +83,7 @@ function reconcile(container, instance, element) {
 }
 
 function reconcileChildren(instance, element) {
+
   const childInstances = instance.childInstances;
 
   const nextChildElements = element.props.children || [];

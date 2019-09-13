@@ -31,13 +31,14 @@ class App extends Clone.Component {
         Clone.createElement(
           'h1',
           {},
-          this.state.count
+          this.state.count + ''
         ),
         Clone.createElement(
           'button',
           {
             onClick: () => this.sub(),
-          }
+          },
+          "Delete child"
         ),
         Clone.createElement(
           'ul',
@@ -67,7 +68,6 @@ class Story extends Clone.Component {
 
 
   componentDidMount() {
-    super.componentDidMount()
     // this.setState({
     //   likes: 123,
     // })
@@ -76,7 +76,7 @@ class Story extends Clone.Component {
 
   like() {
     this.setState({
-      likes: this.state.likes + 1,
+      likes: this.state.likes,
     });
   }
 

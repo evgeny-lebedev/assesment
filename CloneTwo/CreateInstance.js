@@ -64,12 +64,24 @@ function createComponentInstance(element, instance) {
   return componentInstance;
 }
 
-function updateInstance(instance) {
-  const parentDom = instance.domElement.parentNode;
+function updateCompositeInstance(componentInstance, partialState) {
 
-  const element = instance.element;
+  const prevState = { ...componentInstance.state };
 
-  reconcile(parentDom, instance, element);
+  const statesAreEqual = JSON.stringify(prevState) === JSON.stringify(partialState);
+
+  if (statesAreEqual) {
+
+    return;
+  }
+
+  componentInstance.state = Object.assign({}, componentInstance.state, partialState);
+
+  const parentDom = componentInstance.instance.domElement.parentNode;
+
+  const element = componentInstance.instance.element;
+
+  reconcile(parentDom, componentInstance.instance, element);
 }
 
 function useState(initialValue) {
@@ -87,4 +99,4 @@ function useState(initialValue) {
   return [getState, setStage];
 }
 
-export { createInstance, useState, updateInstance };
+export { createInstance, useState, updateCompositeInstance };

@@ -1,4 +1,4 @@
-import { updateInstance } from "./CreateInstance";
+import { updateCompositeInstance } from "./CreateInstance";
 
 class Component {
   constructor(props) {
@@ -8,17 +8,20 @@ class Component {
   }
 
   setState(partialState) {
-    this.state = Object.assign({}, this.state, partialState);
-
-    updateInstance(this.instance);
+    updateCompositeInstance(this, partialState);
   }
 
   componentDidMount() {
-    console.log(this)
+    console.log("didMount")
   }
 
   componentWillUnmount() {
     console.log("willUnmount")
+  }
+
+  componentDidUpdate(comp) {
+    console.log("didUpdate");
+    console.log(comp)
   }
 }
 

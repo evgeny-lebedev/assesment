@@ -13,6 +13,7 @@ function createElement(type, config, ...args) {
 }
 
 function createTextElement(value) {
+
   return createElement(TEXT_ELEMENT, { nodeValue: value });
 }
 

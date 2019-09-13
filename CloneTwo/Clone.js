@@ -6,6 +6,7 @@ import { Component } from "./Component";
 let rootInstance = null;
 
 function render(element, container) {
+
   rootInstance = reconcile(container, rootInstance, element);
 }
 
