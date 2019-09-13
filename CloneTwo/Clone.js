@@ -1,16 +1,26 @@
 import { createElement } from "./Element";
 import { reconcile } from "./Reconcile";
-import { useState } from "./CreateInstance";
-import { Component } from "./Component";
+import { Component, PureComponent } from "./Component";
 
-let rootInstance = null;
+const root = {
+  rootInstance: null,
+  getRootInstance() {
+    return this.rootInstance;
+  },
+  setRootInstance(newInstance) {
+    this.rootInstance = newInstance;
+  }
+};
 
 function render(element, container) {
+  const oldRootInstance = root.getRootInstance();
 
-  rootInstance = reconcile(container, rootInstance, element);
+  const newRootInstance = reconcile(container, oldRootInstance, element);
+
+  root.setRootInstance(newRootInstance);
 }
 
-const Clone = { createElement, render, useState, Component };
+const Clone = { render, createElement, Component, PureComponent };
 
 export default Clone;
 

@@ -1,10 +1,10 @@
-import { updateCompositeInstance } from "./CreateInstance";
+import { forceUpdateCompositeInstance, updateCompositeInstance } from "./Reconcile";
+import { isEqual } from "./Utils";
 
 class Component {
   constructor(props) {
     this.props = props;
-
-    this.state = this.state || {};
+    this.state = {};
   }
 
   setState(partialState) {
@@ -19,10 +19,26 @@ class Component {
     console.log("willUnmount")
   }
 
-  componentDidUpdate(comp) {
-    console.log("didUpdate");
-    console.log(comp)
+  shouldComponentUpdate() {
+    return true;
+  }
+
+  componentDidUpdate() {
+    console.log("didUpdate")
+  }
+
+  forceUpdate() {
+    forceUpdateCompositeInstance(this)
   }
 }
 
-export { Component }
+
+class PureComponent extends Component {
+
+  shouldComponentUpdate(prevProps, nextProps) {
+    return isEqual(prevProps, nextProps);
+  }
+
+}
+
+export { Component, PureComponent };

@@ -1,71 +1,67 @@
-import { CHILDREN, ON, STYLE, TEXT_ELEMENT } from "./Constants";
-
-const isEvent = name => name.startsWith(ON);
-
-const isAttribute = name => !isEvent(name) && name !== CHILDREN && name !== STYLE;
-
-const isNew = (prev, next) => key => prev[key] !== next[key];
-
-const isGone = (prev, next) => key => !(key in next);
+import { TEXT_ELEMENT } from "./Constants";
+import { isPropAttribute, isPropEvent, isPropGone, isPropNew } from "./Utils";
 
 function updateDomElementProperties(domElement, prevProps, nextProps) {
-  // Remove event listeners
+  updateEventListeners(domElement, prevProps, nextProps);
+
+  updateAttributes(domElement, prevProps, nextProps);
+
+  updateStyle(domElement, prevProps, nextProps)
+}
+
+function updateEventListeners(domElement, prevProps, nextProps) {
   Object.keys(prevProps)
-    .filter(isEvent)
-    .filter(key => isGone(prevProps, nextProps)(key) || isNew(prevProps, nextProps)(key))
+    .filter(isPropEvent)
+    .filter(key => isPropGone(prevProps, nextProps)(key) || isPropNew(prevProps, nextProps)(key))
     .forEach(name => {
       const eventType = name.toLowerCase().substring(2);
       domElement.removeEventListener(eventType, prevProps[name]);
     });
 
-  // Add event listeners
   Object.keys(nextProps)
-    .filter(isEvent)
-    .filter(isNew(prevProps, nextProps))
+    .filter(isPropEvent)
+    .filter(isPropNew(prevProps, nextProps))
     .forEach(name => {
       const eventType = name.toLowerCase().substring(2);
       domElement.addEventListener(eventType, nextProps[name]);
     });
+}
 
-  // Remove attributes
+function updateAttributes(domElement, prevProps, nextProps) {
   Object.keys(prevProps)
-    .filter(isAttribute)
-    .filter(isGone(prevProps, nextProps))
+    .filter(isPropAttribute)
+    .filter(isPropGone(prevProps, nextProps))
     .forEach(name => {
       delete domElement[name];
     });
 
-  // Set attributes
   Object.keys(nextProps)
-    .filter(isAttribute)
-    .filter(isNew(prevProps, nextProps))
+    .filter(isPropAttribute)
+    .filter(isPropNew(prevProps, nextProps))
     .forEach(name => {
       domElement[name] = nextProps[name];
     });
+}
 
-  // Style
+function updateStyle(domElement, prevProps, nextProps) {
   const prevStyle = prevProps.style || {};
 
   const nextStyle = nextProps.style || {};
 
-  // Remove style
   Object.keys(prevStyle)
-    .filter(isGone(prevStyle, nextStyle))
+    .filter(isPropGone(prevStyle, nextStyle))
     .forEach(key => {
       domElement.style[key] = "";
     });
 
-  //Set style
   Object.keys(nextStyle)
-    .filter(isNew(prevStyle, nextStyle))
+    .filter(isPropNew(prevStyle, nextStyle))
     .forEach(key => {
       domElement.style[key] = nextStyle[key];
     });
-
 }
 
 function createDomElement(element) {
-
   const isTextElement = element.type === TEXT_ELEMENT;
 
   const domElement = isTextElement
@@ -79,4 +75,4 @@ function createDomElement(element) {
   return domElement;
 }
 
-export { updateDomElementProperties, createDomElement }
+export { updateDomElementProperties, createDomElement };

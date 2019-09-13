@@ -1,55 +1,89 @@
-import { createInstance } from "./CreateInstance";
+import { createInstance } from "./Instance";
 import { updateDomElementProperties } from "./DomUtils";
+import { filterValid, isElementComponent, isEqual, isInstanceOfPureComponent, isValid } from "./Utils";
 
-const isComponent = element => typeof element.type === "function";
+function reconcile(container, instance, element, forceUpdate) {
+  const noInstanceAndElement = !instance && !element;
+  const noInstance = !instance;
+  const noElement = !element;
+  const differentTypes = noInstance || noElement || instance.element.type !== element.type;
+  const isComponent = isElementComponent(element);
 
-function reconcile(container, instance, element) {
-  if (instance == null && element == null){
+  if (noInstanceAndElement) {
     return null;
   }
 
-  if (instance == null) {
-    // Create instance
-    const newInstance = createInstance(element);
+  if (noInstance) {
+    return instantiate(container, instance, element)
+  }
 
-    container.appendChild(newInstance.domElement);
+  if (noElement) {
+    return remove(container, instance, element)
+  }
 
-    if (isComponent(element)) {
-      newInstance.componentInstance.componentDidMount();
-    }
+  if (differentTypes) {
+    return replace(container, instance, element)
+  }
 
-    return newInstance;
-  } else if (element == null) {
-    // Remove instance
+  if (isComponent) {
+    return updateComposite(container, instance, element, forceUpdate)
+  }
 
-    if (isComponent(instance.element)) {
-      instance.componentInstance.componentWillUnmount();
-    }
+  return update(container, instance, element)
+}
 
-    container.removeChild(instance.domElement);
+function instantiate(container, instance, element) {
+  const newInstance = createInstance(element);
 
+  if (!isValid(newInstance)) {
     return null;
-  } else if (instance.element.type !== element.type) {
-    // Replace instance
-    const newInstance = createInstance(element);
+  }
 
-    if (isComponent(element)) {
-      newInstance.componentInstance.componentWillUnmount();
-    }
+  container.appendChild(newInstance.domElement);
 
-    container.removeChild(instance.domElement);
+  if (isElementComponent(element)) {
+    newInstance.componentInstance.componentDidMount();
+  }
 
-    container.appendChild(newInstance.domElement);
+  return newInstance;
+}
 
-    if (isComponent(element)) {
-      newInstance.componentInstance.componentDidMount()
-    }
+function remove(container, instance) {
+  if (isElementComponent(instance.element)) {
+    instance.componentInstance.componentWillUnmount();
+  }
 
-    // container.replaceChild(newInstance.domElement, instance.domElement);
+  container.removeChild(instance.domElement);
 
-    return newInstance;
-  } else if (isComponent(element)) {
-    //Update composite instance
+  return null;
+}
+
+function replace(container, instance, element) {
+  const newInstance = createInstance(element);
+
+  if (isElementComponent(element)) {
+    newInstance.componentInstance.componentWillUnmount();
+  }
+
+  container.removeChild(instance.domElement);
+
+  container.appendChild(newInstance.domElement);
+
+  if (isElementComponent(element)) {
+    newInstance.componentInstance.componentDidMount()
+  }
+
+  return newInstance;
+}
+
+function updateComposite(container, instance, element, forceUpdate) {
+  const instanceOfPureComponent = isInstanceOfPureComponent(instance.componentInstance);
+
+  const shouldUpdate = forceUpdate || instanceOfPureComponent
+    ? instance.componentInstance.shouldComponentUpdate(instance.componentInstance.props, element.props)
+    : instance.componentInstance.shouldComponentUpdate();
+
+  if (shouldUpdate) {
     instance.componentInstance.props = element.props;
 
     const childElement = instance.componentInstance.render();
@@ -68,41 +102,74 @@ function reconcile(container, instance, element) {
 
     instance.element = element;
 
-    return instance;
-
-  } else {
-    // Update instance
-    updateDomElementProperties(instance.domElement, instance.element.props, element.props);
-
-    instance.childInstances = reconcileChildren(instance, element);
-
-    instance.element = element;
-
-    return instance;
+    instance.componentInstance.componentDidUpdate();
   }
+
+  return instance;
+}
+
+function update(container, instance, element) {
+  updateDomElementProperties(instance.domElement, instance.element.props, element.props);
+
+  instance.childInstances = reconcileChildren(instance, element);
+
+  instance.element = element;
+
+  return instance;
 }
 
 function reconcileChildren(instance, element) {
-
   const childInstances = instance.childInstances;
 
   const nextChildElements = element.props.children || [];
 
   const newChildInstances = [];
 
-  const count = Math.max(childInstances.length, nextChildElements.length);
+  const longest = childInstances.length > nextChildElements.length
+    ? childInstances
+    : nextChildElements;
 
-  for (let i = 0; i < count; i++) {
-    const childInstance = childInstances[i];
+  longest.forEach((item, index) => {
+    const childInstance = childInstances[index];
 
-    const childElement = nextChildElements[i];
+    const childElement = nextChildElements[index];
 
     const newChildInstance = reconcile(instance.domElement, childInstance, childElement);
 
     newChildInstances.push(newChildInstance);
-  }
+  });
 
-  return newChildInstances.filter(instance => instance != null);
+  return filterValid(newChildInstances);
 }
 
-export { reconcile };
+function updateCompositeInstance(componentInstance, partialState) {
+  const statesEqual = isEqual(componentInstance.state, partialState);
+
+  const instanceOfPureComponent = isInstanceOfPureComponent(componentInstance);
+
+  const shouldUpdate = instanceOfPureComponent
+    ? true
+    : componentInstance.shouldComponentUpdate();
+
+  if (!shouldUpdate || statesEqual) {
+    return;
+  }
+
+  componentInstance.state = Object.assign({}, componentInstance.state, partialState);
+
+  const parentDom = componentInstance.instance.domElement.parentNode;
+
+  const element = componentInstance.instance.element;
+
+  reconcile(parentDom, componentInstance.instance, element, true);
+}
+
+function forceUpdateCompositeInstance(componentInstance) {
+  const parentDom = componentInstance.instance.domElement.parentNode;
+
+  const element = componentInstance.instance.element;
+
+  reconcile(parentDom, componentInstance.instance, element, true);
+}
+
+export { reconcile, updateCompositeInstance, forceUpdateCompositeInstance };

@@ -1,15 +1,12 @@
 import { createDomElement } from "./DomUtils";
-import { reconcile } from "./Reconcile";
+import { filterValid, isElementComponent, isValid } from "./Utils";
 
 function createInstance(element) {
-  if (element == null) {
+  if (!isValid(element)) {
     return null;
   }
 
-  const isComponent = typeof element.type === "function";
-
-  if (isComponent) {
-
+  if (isElementComponent(element)) {
     const instance = {};
 
     const componentInstance = createComponentInstance(element, instance);
@@ -19,7 +16,6 @@ function createInstance(element) {
     const childInstance = createInstance(childElement);
 
     if (childInstance == null) {
-
       return null;
     }
 
@@ -28,19 +24,14 @@ function createInstance(element) {
     Object.assign(instance, { domElement, element, childInstance, componentInstance });
 
     return instance;
-
   } else {
-
     const domElement = createDomElement(element);
 
     const childElements = element.props.children || [];
 
     const childInstances = childElements.map(createInstance);
 
-    const filteredChildInstances = childInstances.filter(childInstance => childInstance !== null);
-
-    filteredChildInstances.forEach(childInstance => {
-
+    filterValid(childInstances).forEach(childInstance => {
       domElement.appendChild(childInstance.domElement);
 
       if (childInstance.componentInstance) {
@@ -64,39 +55,4 @@ function createComponentInstance(element, instance) {
   return componentInstance;
 }
 
-function updateCompositeInstance(componentInstance, partialState) {
-
-  const prevState = { ...componentInstance.state };
-
-  const statesAreEqual = JSON.stringify(prevState) === JSON.stringify(partialState);
-
-  if (statesAreEqual) {
-
-    return;
-  }
-
-  componentInstance.state = Object.assign({}, componentInstance.state, partialState);
-
-  const parentDom = componentInstance.instance.domElement.parentNode;
-
-  const element = componentInstance.instance.element;
-
-  reconcile(parentDom, componentInstance.instance, element);
-}
-
-function useState(initialValue) {
-
-  let state = initialValue;
-
-  function getState() {
-    return state;
-  }
-
-  function setStage(newValue) {
-    state = newValue;
-  }
-
-  return [getState, setStage];
-}
-
-export { createInstance, useState, updateCompositeInstance };
+export { createInstance };
