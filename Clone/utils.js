@@ -88,8 +88,6 @@ function getElementByKey(elements, key) {
 }
 
 function areKeysValid(instances) {
-  let areUnique = true;
-
   instances.forEach((instance, index) => {
     if (index > 0) {
       const currentKey = instance.key;
@@ -100,8 +98,6 @@ function areKeysValid(instances) {
       }
     }
   });
-
-  return areUnique;
 }
 
 export {
