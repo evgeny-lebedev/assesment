@@ -1,12 +1,20 @@
-import { CHILDREN, FUNCTION, ON, STYLE } from "./Constants";
+import { CHILDREN, ERROR_MESSAGES, FUNCTION, KEY, ON, STYLE } from "./Constants";
 import { PureComponent } from "./Component";
+
+function isFunction(item) {
+  return item && typeof item === FUNCTION;
+}
 
 function isElementComponent(element) {
   return element && typeof element.type === FUNCTION;
 }
 
 function isEqual(a, b) {
-  return a === b || JSON.stringify(a) === JSON.stringify(b)
+  if (a === b) {
+    return true
+  } else {
+    return a === b || JSON.stringify(a) === JSON.stringify(b);
+  }
 }
 
 function isInstanceOfPureComponent(componentInstance) {
@@ -41,7 +49,31 @@ function isPropGone(prev, next) {
   }
 }
 
+function errorToConsole(errorType) {
+  console.error(ERROR_MESSAGES[errorType])
+}
+
+function isValidElement(element) {
+  return isValid(element);
+}
+
+function isValidContainer(container) {
+  return container instanceof Element;
+}
+
+function elementsHasKeys(elements) {
+  return elements.every(element => element.props.hasOwnProperty(KEY))
+}
+
+function getElementByKey(elements, key) {
+  return elements.find(element => element.props.key === key)
+}
+
 export {
+  isValidElement,
+  isValidContainer,
+  errorToConsole,
+  isFunction,
   isElementComponent,
   isEqual,
   isInstanceOfPureComponent,
@@ -50,5 +82,7 @@ export {
   isPropEvent,
   isPropAttribute,
   isPropNew,
-  isPropGone
+  isPropGone,
+  elementsHasKeys,
+  getElementByKey,
 };

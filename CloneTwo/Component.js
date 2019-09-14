@@ -1,5 +1,5 @@
 import { forceUpdateCompositeInstance, updateCompositeInstance } from "./Reconcile";
-import { isEqual } from "./Utils";
+import { isEqual, isFunction } from "./Utils";
 
 class Component {
   constructor(props) {
@@ -7,8 +7,16 @@ class Component {
     this.state = {};
   }
 
-  setState(partialState) {
-    updateCompositeInstance(this, partialState);
+  setState(partialState, callback) {
+    if (isFunction(partialState)) {
+      updateCompositeInstance(this, partialState(this.state, this.props));
+    } else {
+      updateCompositeInstance(this, partialState);
+    }
+
+    if (isFunction(callback)) {
+      callback();
+    }
   }
 
   componentDidMount() {

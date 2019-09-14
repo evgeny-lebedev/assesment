@@ -1,6 +1,12 @@
 import { createInstance } from "./Instance";
 import { updateDomElementProperties } from "./DomUtils";
-import { filterValid, isElementComponent, isEqual, isInstanceOfPureComponent, isValid } from "./Utils";
+import {
+  filterValid, getElementByKey,
+  isElementComponent,
+  isEqual,
+  isInstanceOfPureComponent,
+  isValid
+} from "./Utils";
 
 function reconcile(container, instance, element, forceUpdate) {
   const noInstanceAndElement = !instance && !element;
@@ -8,7 +14,6 @@ function reconcile(container, instance, element, forceUpdate) {
   const noElement = !element;
   const differentTypes = noInstance || noElement || instance.element.type !== element.type;
   const isComponent = isElementComponent(element);
-
   if (noInstanceAndElement) {
     return null;
   }
@@ -26,7 +31,7 @@ function reconcile(container, instance, element, forceUpdate) {
   }
 
   if (isComponent) {
-    return updateComposite(container, instance, element, forceUpdate)
+    return updateComponent(container, instance, element, forceUpdate)
   }
 
   return update(container, instance, element)
@@ -76,7 +81,7 @@ function replace(container, instance, element) {
   return newInstance;
 }
 
-function updateComposite(container, instance, element, forceUpdate) {
+function updateComponent(container, instance, element, forceUpdate) {
   const instanceOfPureComponent = isInstanceOfPureComponent(instance.componentInstance);
 
   const shouldUpdate = forceUpdate || instanceOfPureComponent
@@ -120,24 +125,38 @@ function update(container, instance, element) {
 
 function reconcileChildren(instance, element) {
   const childInstances = instance.childInstances;
-
   const nextChildElements = element.props.children || [];
-
   const newChildInstances = [];
+  // const longest = childInstances.length > nextChildElements.length
+  //   ? childInstances
+  //   : nextChildElements;
+  if (childInstances.length > nextChildElements.length) {
+    childInstances.forEach((childInstance) => {
+      const childElement = getElementByKey(nextChildElements, childInstance.key);
+      const newChildInstance = reconcile(instance.domElement, childInstance, childElement);
 
-  const longest = childInstances.length > nextChildElements.length
-    ? childInstances
-    : nextChildElements;
+      newChildInstances.push(newChildInstance);
+    })
+  } else {
+    nextChildElements.forEach((childElement, index) => {
+      const key = childElement.props.key !== undefined || index;
+      const childInstance = childInstances[key];
 
-  longest.forEach((item, index) => {
-    const childInstance = childInstances[index];
+      const newChildInstance = reconcile(instance.domElement, childInstance, childElement);
 
-    const childElement = nextChildElements[index];
+      newChildInstances.push(newChildInstance);
+    });
+  }
 
-    const newChildInstance = reconcile(instance.domElement, childInstance, childElement);
-
-    newChildInstances.push(newChildInstance);
-  });
+  // longest.forEach((item, index) => {
+  //   const childInstance = childInstances[index];
+  //
+  //   const childElement = nextChildElements[index];
+  //
+  //   const newChildInstance = reconcile(instance.domElement, childInstance, childElement);
+  //
+  //   newChildInstances.push(newChildInstance);
+  // });
 
   return filterValid(newChildInstances);
 }

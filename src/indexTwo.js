@@ -6,11 +6,11 @@ const stories = [
   { name: "Element creation and JSX", url: "http://bit.ly/2qGbw8S" },
   { name: "Instances and reconciliation", url: "http://bit.ly/2q4A746" },
   { name: "Components and state", url: "http://bit.ly/2rE16nh" },
-  { name: "Didact introduction", url: "http://bit.ly/2pX7HNn" },
-  { name: "Rendering DOM elements ", url: "http://bit.ly/2qCOejH" },
-  { name: "Element creation and JSX", url: "http://bit.ly/2qGbw8S" },
-  { name: "Instances and reconciliation", url: "http://bit.ly/2q4A746" },
-  { name: "Components and state", url: "http://bit.ly/2rE16nh" }
+  // { name: "Didact introduction", url: "http://bit.ly/2pX7HNn" },
+  // { name: "Rendering DOM elements ", url: "http://bit.ly/2qCOejH" },
+  // { name: "Element creation and JSX", url: "http://bit.ly/2qGbw8S" },
+  // { name: "Instances and reconciliation", url: "http://bit.ly/2q4A746" },
+  // { name: "Components and state", url: "http://bit.ly/2rE16nh" }
 ];
 
 class App extends Clone.Component {
@@ -25,6 +25,12 @@ class App extends Clone.Component {
   sub() {
     this.setState({
       count: this.state.count - 1
+    })
+  }
+
+  plus() {
+    this.setState({
+      count: this.state.count + 1
     })
   }
 
@@ -49,15 +55,17 @@ class App extends Clone.Component {
           'ul',
           {},
 
-          this.props.stories.map((story, index) => index < this.state.count
-            ? Clone.createElement(
+          this.props.stories.map((story, index) => {
+            return index < this.state.count
+              ? Clone.createElement(
               Story,
               {
                 ...story,
+                key: story.name,
                 count: this.state.count
               },
-            ) : null
-          )
+              ) : null
+          })
           // this.props.stories.map((story, index) => Clone.createElement(
           //   Story,
           //   {
@@ -93,7 +101,7 @@ class Story extends Clone.Component {
   like() {
     this.setState({
       likes: this.state.likes + 1,
-    });
+    }, () => console.log(1));
   }
 
   render() {
@@ -107,7 +115,9 @@ class Story extends Clone.Component {
         'button',
         {
           onClick: () => {
-            this.like();
+            this.setState((state, props) => {
+              return { likes: state.likes - props.count };
+            });
           },
         },
         likes,
@@ -118,12 +128,11 @@ class Story extends Clone.Component {
           href: url,
         },
         name,
-        count
+        count,
       )
     );
   }
 }
-
 
 // function App(props) {
 //   return (

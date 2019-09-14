@@ -31,7 +31,13 @@ function createInstance(element) {
 
     const childInstances = childElements.map(createInstance);
 
-    filterValid(childInstances).forEach(childInstance => {
+    filterValid(childInstances).forEach((childInstance, index) => {
+      if (childInstance.element.props.hasOwnProperty("key")) {
+        childInstance.key = childInstance.element.props.key;
+      } else {
+        childInstance.key = index;
+      }
+
       domElement.appendChild(childInstance.domElement);
 
       if (childInstance.componentInstance) {
@@ -39,9 +45,7 @@ function createInstance(element) {
       }
     });
 
-    const instance = { domElement, element, childInstances };
-
-    return instance;
+    return { domElement, element, childInstances };
   }
 }
 

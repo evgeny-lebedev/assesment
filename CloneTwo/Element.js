@@ -1,8 +1,12 @@
-import { TEXT_ELEMENT } from "./Constants";
-import { filterValid } from "./Utils";
+import { ERROR_TYPES, TEXT_ELEMENT } from "./Constants";
+import { elementsHasKeys, errorToConsole, filterValid } from "./Utils";
 
 function createElement(type, config, ...args) {
   const props = { ...config };
+
+  const arrays = args.filter(arg => Array.isArray(arg));
+
+  arrays.forEach(array => elementsHasKeys(filterValid(array)) || errorToConsole(ERROR_TYPES.noKeys));
 
   const rawChildren = [].concat(...args);
 
