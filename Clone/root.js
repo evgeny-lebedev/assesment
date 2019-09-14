@@ -24,7 +24,6 @@ function render(element, container) {
   }
 
   const oldRootInstance = root.getRootInstance();
-
   const newRootInstance = reconcile(container, oldRootInstance, element);
 
   root.setRootInstance(newRootInstance);

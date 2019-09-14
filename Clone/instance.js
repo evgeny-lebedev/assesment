@@ -8,11 +8,8 @@ function createInstance(element) {
 
   if (isElementComponent(element)) {
     const instance = {};
-
     const componentInstance = createComponentInstance(element, instance);
-
     const childElement = componentInstance.render();
-
     const childInstance = createInstance(childElement);
 
     if (childInstance == null) {
@@ -26,9 +23,7 @@ function createInstance(element) {
     return instance;
   } else {
     const domElement = createDomElement(element);
-
     const childElements = element.props.children || [];
-
     const childInstances = childElements.map(createInstance);
 
     filterValid(childInstances).forEach((childInstance, index) => {
@@ -51,7 +46,6 @@ function createInstance(element) {
 
 function createComponentInstance(element, instance) {
   const { type, props } = element;
-
   const componentInstance = new type(props);
 
   componentInstance.instance = instance;

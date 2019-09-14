@@ -154,9 +154,7 @@ function reconcileChildren(instance, element) {
 
 function updateCompositeInstance(componentInstance, partialState) {
   const statesEqual = isEqual(componentInstance.state, partialState);
-
   const instanceOfPureComponent = isInstanceOfPureComponent(componentInstance);
-
   const shouldUpdate = instanceOfPureComponent
     ? true
     : componentInstance.shouldComponentUpdate();
@@ -168,7 +166,6 @@ function updateCompositeInstance(componentInstance, partialState) {
   componentInstance.state = Object.assign({}, componentInstance.state, partialState);
 
   const parentDom = componentInstance.instance.domElement.parentNode;
-
   const element = componentInstance.instance.element;
 
   reconcile(parentDom, componentInstance.instance, element, true);
@@ -176,7 +173,6 @@ function updateCompositeInstance(componentInstance, partialState) {
 
 function forceUpdateCompositeInstance(componentInstance) {
   const parentDom = componentInstance.instance.domElement.parentNode;
-
   const element = componentInstance.instance.element;
 
   reconcile(parentDom, componentInstance.instance, element, true);

@@ -15,6 +15,7 @@ function updateEventListeners(domElement, prevProps, nextProps) {
     .filter(key => isPropGone(prevProps, nextProps)(key) || isPropNew(prevProps, nextProps)(key))
     .forEach(name => {
       const eventType = name.toLowerCase().substring(2);
+
       domElement.removeEventListener(eventType, prevProps[name]);
     });
 
@@ -23,6 +24,7 @@ function updateEventListeners(domElement, prevProps, nextProps) {
     .filter(isPropNew(prevProps, nextProps))
     .forEach(name => {
       const eventType = name.toLowerCase().substring(2);
+
       domElement.addEventListener(eventType, nextProps[name]);
     });
 }
@@ -45,7 +47,6 @@ function updateAttributes(domElement, prevProps, nextProps) {
 
 function updateStyle(domElement, prevProps, nextProps) {
   const prevStyle = prevProps.style || {};
-
   const nextStyle = nextProps.style || {};
 
   Object.keys(prevStyle)
@@ -63,7 +64,6 @@ function updateStyle(domElement, prevProps, nextProps) {
 
 function createDomElement(element) {
   const isTextElement = element.type === TEXT_ELEMENT;
-
   const domElement = isTextElement
     ? document.createTextNode(element.props.nodeValue)
     : document.createElement(element.type);
