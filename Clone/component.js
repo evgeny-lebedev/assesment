@@ -1,5 +1,5 @@
-import { forceUpdateCompositeInstance, updateCompositeInstance } from "./Reconcile";
-import { isEqual, isFunction } from "./Utils";
+import { forceUpdateCompositeInstance, updateCompositeInstance } from "./reconcile";
+import { isEqual, isFunction } from "./utils";
 
 class Component {
   constructor(props) {

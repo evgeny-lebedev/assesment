@@ -1,5 +1,5 @@
-import { createDomElement } from "./DomUtils";
-import { filterValid, isElementComponent, isValid } from "./Utils";
+import { createDomElement } from "./domUtils";
+import { filterValid, isElementComponent, isValid } from "./utils";
 
 function createInstance(element) {
   if (!isValid(element)) {

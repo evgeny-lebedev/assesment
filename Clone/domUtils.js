@@ -1,5 +1,5 @@
-import { TEXT_ELEMENT } from "./Constants";
-import { isPropAttribute, isPropEvent, isPropGone, isPropNew } from "./Utils";
+import { TEXT_ELEMENT } from "./constants";
+import { isPropAttribute, isPropEvent, isPropGone, isPropNew } from "./utils";
 
 function updateDomElementProperties(domElement, prevProps, nextProps) {
   updateEventListeners(domElement, prevProps, nextProps);

@@ -1,8 +1,11 @@
-* {
-  margin: 0;
-  padding: 0;
+.listItem {
+  display: flex;
 }
 
-.app {
-  background-color: green;
+.itemText {
+  width: 150px;
+}
+
+button + button {
+  margin-left: 10px;
 }

@@ -1,12 +1,13 @@
-import { ERROR_TYPES, TEXT_ELEMENT } from "./Constants";
-import { elementsHasKeys, errorToConsole, filterValid } from "./Utils";
+import { ERROR_TYPES, TEXT_ELEMENT } from "./constants";
+import { elementsHasKeys, errorToConsole, filterValid } from "./utils";
 
 function createElement(type, config, ...args) {
   const props = { ...config };
-
   const arrays = args.filter(arg => Array.isArray(arg));
 
-  arrays.forEach(array => elementsHasKeys(filterValid(array)) || errorToConsole(ERROR_TYPES.noKeys));
+  arrays.forEach(array => {
+    return elementsHasKeys(filterValid(array)) || errorToConsole(ERROR_TYPES.noKeys)
+  });
 
   const rawChildren = [].concat(...args);
 

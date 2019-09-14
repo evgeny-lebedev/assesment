@@ -1,5 +1,5 @@
-import { CHILDREN, ERROR_MESSAGES, FUNCTION, KEY, ON, STYLE } from "./Constants";
-import { PureComponent } from "./Component";
+import { BOOLEAN, CHILDREN, ERROR_MESSAGES, ERROR_TYPES, FUNCTION, KEY, ON, STYLE } from "./constants";
+import { PureComponent } from "./component";
 
 function isFunction(item) {
   return item && typeof item === FUNCTION;
@@ -53,12 +53,30 @@ function errorToConsole(errorType) {
   console.error(ERROR_MESSAGES[errorType])
 }
 
+function throwError(errorType) {
+  throw new Error(ERROR_MESSAGES[errorType])
+}
+
 function isValidElement(element) {
   return isValid(element);
 }
 
 function isValidContainer(container) {
   return container instanceof Element;
+}
+
+function isValidKey(key) {
+  if (key === 0) {
+    return true;
+  }
+  if (key instanceof Object) {
+    return false
+  }
+  if (typeof key === BOOLEAN) {
+    return false
+  }
+
+  return !!key;
 }
 
 function elementsHasKeys(elements) {
@@ -69,10 +87,28 @@ function getElementByKey(elements, key) {
   return elements.find(element => element.props.key === key)
 }
 
+function areKeysValid(instances) {
+  let areUnique = true;
+
+  instances.forEach((instance, index) => {
+    if (index > 0) {
+      const currentKey = instance.key;
+      const prevKey = instances[index - 1].key;
+
+      if (!isValidKey(prevKey) || !isValidKey(currentKey) || (prevKey === currentKey)) {
+        throwError(ERROR_TYPES.invalidKeys)
+      }
+    }
+  });
+
+  return areUnique;
+}
+
 export {
   isValidElement,
   isValidContainer,
   errorToConsole,
+  throwError,
   isFunction,
   isElementComponent,
   isEqual,
@@ -85,4 +121,5 @@ export {
   isPropGone,
   elementsHasKeys,
   getElementByKey,
+  areKeysValid,
 };
