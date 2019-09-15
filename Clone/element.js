@@ -9,7 +9,7 @@ function createElement(type, config, ...args) {
     return elementsHasKeys(filterValid(array)) || errorToConsole(ERROR_TYPES.noKeys)
   });
 
-  const rawChildren = [].concat(...args);
+  const rawChildren = [...args];
 
   props.children = filterValid(rawChildren).map(child => child instanceof Object ? child : createTextElement(child));
 

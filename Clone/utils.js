@@ -1,4 +1,4 @@
-import { BOOLEAN, CHILDREN, ERROR_MESSAGES, ERROR_TYPES, FUNCTION, KEY, ON, STYLE } from "./constants";
+import { ARRAY, BOOLEAN, CHILDREN, ERROR_MESSAGES, ERROR_TYPES, FUNCTION, KEY, ON, STYLE } from "./constants";
 import { PureComponent } from "./component";
 
 function isFunction(item) {
@@ -7,6 +7,10 @@ function isFunction(item) {
 
 function isElementComponent(element) {
   return element && typeof element.type === FUNCTION;
+}
+
+function isInstanceTypeArray(instance) {
+  return instance.type === ARRAY;
 }
 
 function isEqual(a, b) {
@@ -87,6 +91,10 @@ function getElementByKey(elements, key) {
   return elements.find(element => element.props.key === key)
 }
 
+function getInstanceByKey(instances, key) {
+  return instances.find(instance => instance.key === key)
+}
+
 function areKeysValid(instances) {
   instances.forEach((instance, index) => {
     if (index > 0) {
@@ -117,5 +125,7 @@ export {
   isPropGone,
   elementsHasKeys,
   getElementByKey,
+  getInstanceByKey,
   areKeysValid,
+  isInstanceTypeArray,
 };

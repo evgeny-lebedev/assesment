@@ -1,12 +1,15 @@
 import { createDomElement } from "./domUtils";
-import { filterValid, isElementComponent, isValid } from "./utils";
+import { filterValid, isElementComponent, isInstanceTypeArray, isValid } from "./utils";
+import { ARRAY, KEY } from "./constants";
 
 function createInstance(element) {
   if (!isValid(element)) {
     return null;
   }
 
-  if (isElementComponent(element)) {
+  if (Array.isArray(element)) {
+    return createArrayInstance(element)
+  } else if (isElementComponent(element)) {
     const instance = {};
     const componentInstance = createComponentInstance(element, instance);
     const childElement = componentInstance.render();
@@ -25,15 +28,25 @@ function createInstance(element) {
     const domElement = createDomElement(element);
     const childElements = element.props.children || [];
     const childInstances = childElements.map(createInstance);
-
     filterValid(childInstances).forEach((childInstance, index) => {
-      if (childInstance.element.props.hasOwnProperty("key")) {
-        childInstance.key = childInstance.element.props.key;
+      if (isInstanceTypeArray(childInstance)) {
+        const filtered = filterValid(childInstance.instances);
+
+        filtered.forEach(instance => {
+          if (instance.element.props.hasOwnProperty(KEY)) {
+            instance.key = instance.element.props.key;
+          } else {
+            instance.key = index;
+          }
+          domElement.appendChild(instance.domElement);
+        });
+
+        childInstance.key = index;
       } else {
         childInstance.key = index;
-      }
 
-      domElement.appendChild(childInstance.domElement);
+        domElement.appendChild(childInstance.domElement);
+      }
 
       if (childInstance.componentInstance) {
         childInstance.componentInstance.componentDidMount();
@@ -42,6 +55,15 @@ function createInstance(element) {
 
     return { domElement, element, childInstances };
   }
+}
+
+function createArrayInstance(elements) {
+  const instances = elements.map(element => createInstance(element));
+
+  return {
+    instances: filterValid(instances),
+    type: ARRAY,
+  };
 }
 
 function createComponentInstance(element, instance) {

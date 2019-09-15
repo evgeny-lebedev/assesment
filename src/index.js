@@ -1,21 +1,21 @@
 import * as Clone from "../Clone/root";
 import classes from "./index.css";
 
-const items = [
-  "Item One",
-  "Item Two",
-  "Item Three",
-  "Item Four",
-  "Item Five",
-  "Item Six",
-];
+// const items = [
+//   "Item One",
+//   "Item Two",
+//   "Item Three",
+//   "Item Four",
+//   "Item Five",
+//   "Item Six",
+// ];
 
 class App extends Clone.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      itemsCount: 5,
+      itemsCount: Math.floor(Math.random() * 6) + 1,
     }
   }
 
@@ -25,38 +25,71 @@ class App extends Clone.Component {
     })
   }
 
+  appendItem() {
+    this.setState({
+      itemsCount: this.state.itemsCount + 1
+    })
+  }
+
   render() {
-    return (
-      Clone.createElement(
-        'div',
-        {},
-        Clone.createElement(
-          'h1',
-          {},
-          `Items in list below: ${this.state.itemsCount}`
-        ),
-        Clone.createElement(
-          'button',
+    const items = this.props.items.map((item, index) => {
+      if (index <= this.state.itemsCount) {
+        return Clone.createElement(
+          'li',
           {
-            onClick: () => this.removeItem(),
+            key: item,
           },
-          "Remove one item"
-        ),
+          item
+        )
+      } else {
+        return null;
+      }
+    });
+    // const z = this.props.items.map((item, index) => (
+    //   index < this.state.itemsCount
+    //     ? Clone.createElement(
+    //     ListItem,
+    //     {
+    //       key: item,
+    //       itemsCount: this.state.itemsCount,
+    //       item,
+    //     },
+    //     item,
+    //     ) : null)
+    // );
+
+
+    return Clone.createElement(
+      'div',
+      {},
+      Clone.createElement(
+        'h1',
+        {},
+        `Items in list below: ${this.state.itemsCount}`
+      ),
+      Clone.createElement(
+        'button',
+        {
+          onClick: () => this.removeItem(),
+        },
+        "Remove one item"
+      ),
+      Clone.createElement(
+        'button',
+        {
+          onClick: () => this.appendItem(),
+        },
+        "Append one item"
+      ),
+      Clone.createElement(
+        'ul',
+        {},
+        items,
         Clone.createElement(
-          'ul',
+          'li',
           {},
-          this.props.items.map((item, index) => (
-            index < this.state.itemsCount
-              ? Clone.createElement(
-              ListItem,
-              {
-                key: item,
-                itemsCount: this.state.itemsCount,
-                item,
-              },
-              item,
-              ) : null)
-          )),
+          'Static List Item'
+        ),
       )
     );
   }
@@ -120,7 +153,9 @@ Clone.render(
   Clone.createElement(
     App,
     {
-      items
+      items: new Array(8)
+        .fill({})
+        .map((elem, index) => `Item ${index}`)
     },
   ),
   document.getElementById("root")

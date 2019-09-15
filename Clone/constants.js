@@ -5,6 +5,7 @@ const STYLE = "style";
 const FUNCTION = "function";
 const KEY = "key";
 const BOOLEAN = "boolean";
+const ARRAY = "array";
 
 const ERROR_TYPES = {
   noKeys: "noKeys",
@@ -20,4 +21,4 @@ const ERROR_MESSAGES = {
   [ERROR_TYPES.invalidKeys]: "Invalid keys provided",
 };
 
-export { ERROR_TYPES, ERROR_MESSAGES, TEXT_ELEMENT, ON, CHILDREN, STYLE, FUNCTION, KEY, BOOLEAN };
+export { ERROR_TYPES, ERROR_MESSAGES, TEXT_ELEMENT, ON, CHILDREN, STYLE, FUNCTION, KEY, BOOLEAN, ARRAY };
