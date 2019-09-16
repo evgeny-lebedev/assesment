@@ -28,6 +28,7 @@ function createInstance(element) {
     const domElement = createDomElement(element);
     const childElements = element.props.children || [];
     const childInstances = childElements.map(createInstance);
+
     filterValid(childInstances).forEach((childInstance, index) => {
       if (isInstanceTypeArray(childInstance)) {
         const filtered = filterValid(childInstance.instances);
@@ -38,6 +39,7 @@ function createInstance(element) {
           } else {
             instance.key = index;
           }
+
           domElement.appendChild(instance.domElement);
         });
 
@@ -53,7 +55,11 @@ function createInstance(element) {
       }
     });
 
-    return { domElement, element, childInstances };
+    const instance = { domElement, element, childInstances };
+
+    instance.key = element.props.key;
+
+    return instance;
   }
 }
 

@@ -15,6 +15,7 @@ function reconcile(container, instance, element, forceUpdate) {
   const noElement = !element;
   const differentTypes = noInstance || noElement || instance.element.type !== element.type;
   const isComponent = isElementComponent(element);
+
   if (noInstanceAndElement) {
     return null;
   }
@@ -134,6 +135,7 @@ function reconcileArray(parentInstance, instance, elements) {
       } else {
         const childElement = getElementByKey(elements, childInstance.key);
         const newChildInstance = reconcile(parentInstance.domElement, childInstance, childElement);
+
         newInstances.push(newChildInstance);
       }
     })
@@ -144,7 +146,6 @@ function reconcileArray(parentInstance, instance, elements) {
       } else {
         const key = childElement.props.key || childElementIndex;
         const childInstance = getInstanceByKey(oldInstances, key);
-
         const newChildInstance = reconcile(parentInstance.domElement, childInstance, childElement);
 
         newInstances.push(newChildInstance);
@@ -153,7 +154,6 @@ function reconcileArray(parentInstance, instance, elements) {
   }
 
   newInstance.instances = filterValid(newInstances);
-
   return newInstance;
 }
 
