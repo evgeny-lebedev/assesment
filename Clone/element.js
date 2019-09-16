@@ -1,13 +1,10 @@
 import { ERROR_TYPES, TEXT_ELEMENT } from "./constants";
-import { elementsHasKeys, errorToConsole, filterValid } from "./utils";
+import { hasElementsKeys, errorToConsole, filterValid } from "./utils";
 
 function createElement(type, config, ...args) {
   const props = { ...config };
-  const arrays = args.filter(arg => Array.isArray(arg));
 
-  arrays.forEach(array => {
-    return elementsHasKeys(filterValid(array)) || errorToConsole(ERROR_TYPES.noKeys)
-  });
+  validateArgs(args);
 
   const rawChildren = [...args];
 
@@ -18,6 +15,20 @@ function createElement(type, config, ...args) {
 
 function createTextElement(value) {
   return createElement(TEXT_ELEMENT, { nodeValue: value });
+}
+
+function validateArgs(args) {
+  const arrays = args.filter(arg => Array.isArray(arg));
+
+  arrays.forEach(array => {
+    const arrayHasKeys = hasElementsKeys(filterValid(array));
+
+    if (!arrayHasKeys) {
+      array.forEach((element, index) => element.props = { ...element.props, key: index });
+
+      errorToConsole(ERROR_TYPES.noKeys);
+    }
+  });
 }
 
 export { createElement };

@@ -83,7 +83,7 @@ function isValidKey(key) {
   return !!key;
 }
 
-function elementsHasKeys(elements) {
+function hasElementsKeys(elements) {
   return elements.every(element => element.props.hasOwnProperty(KEY))
 }
 
@@ -95,7 +95,7 @@ function getInstanceByKey(instances, key) {
   return instances.find(instance => instance.key === key)
 }
 
-function areKeysValid(instances) {
+function checkKeys(instances) {
   instances.forEach((instance, index) => {
     if (index > 0) {
       const currentKey = instance.key;
@@ -123,9 +123,9 @@ export {
   isPropAttribute,
   isPropNew,
   isPropGone,
-  elementsHasKeys,
+  hasElementsKeys,
   getElementByKey,
   getInstanceByKey,
-  areKeysValid,
+  checkKeys,
   isInstanceTypeArray,
 };

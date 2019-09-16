@@ -13,7 +13,6 @@ import classes from "./index.css";
 class App extends Clone.Component {
   constructor(props) {
     super(props);
-
     this.state = {
       itemsCount: Math.floor(Math.random() * 6) + 1,
     }
@@ -32,31 +31,20 @@ class App extends Clone.Component {
   }
 
   render() {
-    const items = this.props.items.map((item, index) => {
+    const items = new Array(this.state.itemsCount).fill(null).map((item, index) => {
       if (index <= this.state.itemsCount) {
         return Clone.createElement(
-          'li',
+          ListItem,
           {
-            key: item,
+            item: `Item ${index}`,
+            key: `Item ${index}`,
+            itemsCount: this.state.itemsCount,
           },
-          item
         )
       } else {
         return null;
       }
     });
-    // const z = this.props.items.map((item, index) => (
-    //   index < this.state.itemsCount
-    //     ? Clone.createElement(
-    //     ListItem,
-    //     {
-    //       key: item,
-    //       itemsCount: this.state.itemsCount,
-    //       item,
-    //     },
-    //     item,
-    //     ) : null)
-    // );
 
 
     return Clone.createElement(
@@ -87,13 +75,13 @@ class App extends Clone.Component {
         Clone.createElement(
           'li',
           {},
-          'Static List Item'
+          'First Static List Item'
         ),
         items,
         Clone.createElement(
           'li',
           {},
-          'Static List Item'
+          'Last Static List Item'
         ),
       )
     );
@@ -157,11 +145,7 @@ class ListItem extends Clone.Component {
 Clone.render(
   Clone.createElement(
     App,
-    {
-      items: new Array(8)
-        .fill({})
-        .map((elem, index) => `Item ${index}`)
-    },
+    {},
   ),
   document.getElementById("root")
 );

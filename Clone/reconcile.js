@@ -1,11 +1,11 @@
 import { createInstance } from "./instance";
 import { insertDomElement, updateDomElementProperties } from "./domUtils";
 import {
-  areKeysValid,
+  checkKeys,
   filterValid, getElementByKey, getInstanceByKey,
   isElementComponent,
   isEqual,
-  isInstanceOfPureComponent, isInstanceTypeArray,
+  isInstanceOfPureComponent,
   isValid,
 } from "./utils";
 import { INSERTION_TYPES } from "./constants";
@@ -137,36 +137,22 @@ function reconcileArray(parentInstance, instance, elements) {
   };
   if (oldInstances.length > elements.length) {
     oldInstances.forEach((childInstance) => {
-      if (isInstanceTypeArray(childInstance)) {
-        const neededElements = getElementByKey(elements, childInstance.key);
-
-        reconcileArray(parentInstance, childInstance, neededElements)
-      } else {
         const childElement = getElementByKey(elements, childInstance.key);
         const newChildInstance = reconcile(parentInstance.domElement, childInstance, childElement);
 
         newInstances.push(newChildInstance);
-      }
     })
   } else {
     elements.forEach((childElement, childElementIndex) => {
-      if (Array.isArray(childElement)) {
-        const neededInstances = getInstanceByKey(oldInstances, childElement.props.key);
-
-        reconcileArray(parentInstance, neededInstances, filterValid(childElement))
-      } else {
         const key = childElement.props.key || childElementIndex;
         const childInstance = getInstanceByKey(oldInstances, key);
-
         if (!childInstance) {
-          reconcileNewArrayInstance(instance, parentInstance, childElement, newInstances)
+          reconcileNewArrayInstance(instance, parentInstance, childElement, newInstances);
         } else {
           const newChildInstance = reconcile(parentInstance.domElement, childInstance, childElement);
 
           newInstances.push(newChildInstance);
         }
-
-      }
     });
   }
 
@@ -210,42 +196,33 @@ function reconcileNewArrayInstance(instance, parentInstance, childElement, newIn
 }
 
 function reconcileChildren(instance, element) {
-  const childInstances = instance.childInstances;
-  const nextChildElements = element.props.children || [];
-  const newChildInstances = [];
+  const instances = instance.childInstances;
+  const elements = element.props.children || [];
+  const newInstances = [];
 
-  if (childInstances.length > nextChildElements.length) {
-    childInstances.forEach((childInstance) => {
-      const childElement = getElementByKey(nextChildElements, childInstance.key);
-      const newChildInstance = reconcile(instance.domElement, childInstance, childElement);
+  elements.forEach((element, childElementIndex) => {
+    if (Array.isArray(element)) {
+      const newInstance = reconcileArray(instance, instances[childElementIndex], filterValid(element));
 
-      newChildInstances.push(newChildInstance);
-    })
-  } else {
-    nextChildElements.forEach((childElement, childElementIndex) => {
-      if (Array.isArray(childElement)) {
-        const justNew = reconcileArray(instance, childInstances[childElementIndex], filterValid(childElement));
+      newInstances.push(newInstance);
 
-        newChildInstances.push(justNew);
+    } else {
+      const key = element.props.key || childElementIndex;
+      const childInstance = instances[key];
+      const newChildInstance = reconcile(instance.domElement, childInstance, element);
 
-      } else {
-        const key = childElement.props.key || childElementIndex;
-        const childInstance = childInstances[key];
-        const newChildInstance = reconcile(instance.domElement, childInstance, childElement);
+      newInstances.push(newChildInstance);
+    }
+  });
 
-        newChildInstances.push(newChildInstance);
-      }
-    });
-  }
-  const filteredChildInstances = filterValid(newChildInstances);
+  const filteredChildInstances = filterValid(newInstances);
 
-  areKeysValid(filteredChildInstances);
+  checkKeys(filteredChildInstances);
 
-  return filterValid(newChildInstances);
+  return filterValid(newInstances);
 }
 
 function updateCompositeInstance(componentInstance, partialState) {
-
   const statesEqual = isEqual(componentInstance.state, partialState);
   const instanceOfPureComponent = isInstanceOfPureComponent(componentInstance);
   const shouldUpdate = instanceOfPureComponent
@@ -256,12 +233,12 @@ function updateCompositeInstance(componentInstance, partialState) {
     return;
   }
 
-  componentInstance.state = Object.assign({}, componentInstance.state, partialState);
+  componentInstance.state = { ...componentInstance.state, ...partialState };
 
   const parentDom = componentInstance.instance.domElement.parentNode;
   const element = componentInstance.instance.element;
 
-  reconcile(parentDom, componentInstance.instance, element, true);
+  reconcile(parentDom, componentInstance.instance, element);
 }
 
 function forceUpdateCompositeInstance(componentInstance) {

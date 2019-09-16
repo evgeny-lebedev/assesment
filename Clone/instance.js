@@ -23,6 +23,10 @@ function createInstance(element) {
 
     Object.assign(instance, { domElement, element, childInstance, componentInstance });
 
+    if (element.props.key){
+      instance.key = element.props.key;
+    }
+
     return instance;
   } else {
     const domElement = createDomElement(element);
