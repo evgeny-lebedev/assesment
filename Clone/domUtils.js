@@ -1,4 +1,4 @@
-import { TEXT_ELEMENT } from "./constants";
+import { INSERTION_TYPES, TEXT_ELEMENT } from "./constants";
 import { isPropAttribute, isPropEvent, isPropGone, isPropNew } from "./utils";
 
 function updateDomElementProperties(domElement, prevProps, nextProps) {
@@ -75,4 +75,55 @@ function createDomElement(element) {
   return domElement;
 }
 
-export { updateDomElementProperties, createDomElement };
+function prependDomElement(container, element) {
+    container.prepend(element)
+}
+
+function appendDomElement(container, element) {
+    container.append(element)
+}
+
+function insertDomElementBefore(container, element) {
+    container.before(element)
+}
+
+function insertDomElementAfter(container, element) {
+    container.after(element)
+}
+
+// todo: replaceWith
+
+function replaceDomElement(container, element, newElement) {
+    container.removeChild(instance.domElement);
+
+    container.appendChild(newElement);
+}
+
+function removeDomElement(container, element) {
+    container.removeChild(element)
+}
+
+function insertDomElement(insertionType, container, domElement, newDomElement) {
+  switch (insertionType) {
+    case INSERTION_TYPES.prepend:
+      prependDomElement(container, domElement);
+      break;
+    case INSERTION_TYPES.append:
+      appendDomElement(container, domElement);
+      break;
+    case INSERTION_TYPES.insertBefore:
+      insertDomElementBefore(container, domElement);
+      break;
+    case INSERTION_TYPES.insertAfter:
+      insertDomElementAfter(container, domElement);
+      break;
+    case INSERTION_TYPES.replace:
+      replaceDomElement(container, domElement, newDomElement);
+      break;
+    case INSERTION_TYPES.remove:
+      removeDomElement(container, domElement);
+      break;
+  }
+}
+
+export { updateDomElementProperties, createDomElement, insertDomElement };

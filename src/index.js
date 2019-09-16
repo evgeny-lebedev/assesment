@@ -65,7 +65,7 @@ class App extends Clone.Component {
       Clone.createElement(
         'h1',
         {},
-        `Items in list below: ${this.state.itemsCount}`
+        `Items in list below: ${this.state.itemsCount + 2}`
       ),
       Clone.createElement(
         'button',
@@ -84,6 +84,11 @@ class App extends Clone.Component {
       Clone.createElement(
         'ul',
         {},
+        Clone.createElement(
+          'li',
+          {},
+          'Static List Item'
+        ),
         items,
         Clone.createElement(
           'li',

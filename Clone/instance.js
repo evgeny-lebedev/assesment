@@ -28,6 +28,7 @@ function createInstance(element) {
     const domElement = createDomElement(element);
     const childElements = element.props.children || [];
     const childInstances = childElements.map(createInstance);
+    const instance = { domElement, element, childInstances };
 
     filterValid(childInstances).forEach((childInstance, index) => {
       if (isInstanceTypeArray(childInstance)) {
@@ -55,9 +56,9 @@ function createInstance(element) {
       }
     });
 
-    const instance = { domElement, element, childInstances };
-
-    instance.key = element.props.key;
+    if (element.props.key){
+      instance.key = element.props.key;
+    }
 
     return instance;
   }
