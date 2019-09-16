@@ -1,5 +1,5 @@
 import { createInstance } from "./instance";
-import { insertDomElement, updateDomElementProperties } from "./domUtils";
+import { performDomChanges, updateDomElementProperties } from "./domUtils";
 import {
   checkKeys,
   filterValid, getElementByKey, getInstanceByKey,
@@ -8,7 +8,7 @@ import {
   isInstanceOfPureComponent,
   isValid,
 } from "./utils";
-import { INSERTION_TYPES } from "./constants";
+import { DOM_CHANGES_TYPES } from "./constants";
 
 function reconcile(container, instance, element, forceUpdate) {
   const noInstanceAndElement = !instance && !element;
@@ -22,12 +22,10 @@ function reconcile(container, instance, element, forceUpdate) {
   }
 
   if (noInstance) {
-
     return instantiate(container, instance, element)
   }
 
   if (noElement) {
-
     return remove(container, instance)
   }
 
@@ -38,6 +36,7 @@ function reconcile(container, instance, element, forceUpdate) {
   if (isComponent) {
     return updateComponent(container, instance, element, forceUpdate)
   }
+
   return update(container, instance, element)
 }
 
@@ -49,12 +48,11 @@ function instantiate(container, instance, element, prepend, insertAfter) {
   }
 
   if (prepend) {
-    insertDomElement(INSERTION_TYPES.prepend, container, newInstance.domElement);
+    performDomChanges(DOM_CHANGES_TYPES.prepend, container, newInstance.domElement);
   } else if (insertAfter) {
-    insertDomElement(INSERTION_TYPES.insertAfter, insertAfter, newInstance.domElement);
-
+    performDomChanges(DOM_CHANGES_TYPES.insertAfter, insertAfter, newInstance.domElement);
   } else {
-    insertDomElement(INSERTION_TYPES.append, container, newInstance.domElement);
+    performDomChanges(DOM_CHANGES_TYPES.append, container, newInstance.domElement);
   }
 
   if (isElementComponent(element)) {
@@ -69,7 +67,7 @@ function remove(container, instance) {
     instance.componentInstance.componentWillUnmount();
   }
 
-  insertDomElement(INSERTION_TYPES.remove, container, instance.domElement);
+  performDomChanges(DOM_CHANGES_TYPES.remove, container, instance.domElement);
 
   return null;
 }
@@ -81,7 +79,7 @@ function replace(container, instance, element) {
     newInstance.componentInstance.componentWillUnmount();
   }
 
-  insertDomElement(INSERTION_TYPES.replace, container, instance.domElement, newInstance.domElement);
+  performDomChanges(DOM_CHANGES_TYPES.replace, container, instance.domElement, newInstance.domElement);
 
   if (isElementComponent(element)) {
     newInstance.componentInstance.componentDidMount()
@@ -101,11 +99,7 @@ function updateComponent(container, instance, element, forceUpdate) {
 
     const childElement = instance.componentInstance.render();
     const oldChildInstance = instance.childInstance;
-    const newChildInstance = reconcile(
-      container,
-      oldChildInstance,
-      childElement
-    );
+    const newChildInstance = reconcile(container, oldChildInstance, childElement);
 
     instance.domElement = newChildInstance.domElement;
 
@@ -130,69 +124,62 @@ function update(container, instance, element) {
 }
 
 function reconcileArray(parentInstance, instance, elements) {
+  const key = instance.key;
   const oldInstances = instance.instances;
   const newInstances = [];
-  const newInstance = {
-    key: instance.key,
-  };
+
   if (oldInstances.length > elements.length) {
     oldInstances.forEach((childInstance) => {
-        const childElement = getElementByKey(elements, childInstance.key);
-        const newChildInstance = reconcile(parentInstance.domElement, childInstance, childElement);
+      const childElement = getElementByKey(elements, childInstance.key);
+      const newChildInstance = reconcile(parentInstance.domElement, childInstance, childElement);
 
-        newInstances.push(newChildInstance);
+      newInstances.push(newChildInstance);
     })
   } else {
     elements.forEach((childElement, childElementIndex) => {
-        const key = childElement.props.key || childElementIndex;
-        const childInstance = getInstanceByKey(oldInstances, key);
-        if (!childInstance) {
-          reconcileNewArrayInstance(instance, parentInstance, childElement, newInstances);
-        } else {
-          const newChildInstance = reconcile(parentInstance.domElement, childInstance, childElement);
-
-          newInstances.push(newChildInstance);
-        }
-    });
-  }
-
-  newInstance.instances = filterValid(newInstances);
-
-  return newInstance;
-}
-
-function reconcileNewArrayInstance(instance, parentInstance, childElement, newInstances) {
-  const oldInstances = instance.instances;
-
-  if (oldInstances.length > 0) {
-    const insertAfter = oldInstances[oldInstances.length - 1].domElement;
-    const newChildInstance = instantiate(parentInstance.domElement, null, childElement, false, insertAfter);
-
-    newInstances.push(newChildInstance);
-  } else {
-    if (parentInstance.childInstances.length > 0) {
-      const instanceIndex = parentInstance.childInstances.findIndex(x => x.key === instance.key);
-
-      if (instanceIndex === 0) {
-        const newChildInstance = instantiate(parentInstance.domElement, null, childElement, true);
-
-        newInstances.push(newChildInstance);
-      } else if (instanceIndex === parentInstance.childInstances.length - 1) {
-        const newChildInstance = instantiate(parentInstance.domElement, null, childElement);
-
-        newInstances.push(newChildInstance);
+      const key = childElement.props.key || childElementIndex;
+      const childInstance = getInstanceByKey(oldInstances, key);
+      if (!childInstance) {
+        reconcileNewArrayInstance(parentInstance, instance, childElement, newInstances);
       } else {
-        const insertAfter = parentInstance.childInstances[instanceIndex - 1].domElement;
-        const newChildInstance = instantiate(parentInstance.domElement, null, childElement, false, insertAfter);
+        const newChildInstance = reconcile(parentInstance.domElement, childInstance, childElement);
 
         newInstances.push(newChildInstance);
       }
-    } else {
-      const newChildInstance = instantiate(parentInstance.domElement, null, childElement);
+    });
+  }
 
-      newInstances.push(newChildInstance);
+  const filteredInstances = filterValid(newInstances);
+
+  return { instances: filteredInstances, key };
+}
+
+function reconcileNewArrayInstance(parentInstance, instance, childElement, newInstances) {
+  const oldInstances = instance.instances;
+  let newChildInstance = null;
+
+  if (oldInstances.length > 0) {
+    const insertAfter = oldInstances[oldInstances.length - 1].domElement;
+
+    newChildInstance = instantiate(parentInstance.domElement, null, childElement, false, insertAfter);
+  } else {
+    if (parentInstance.childInstances.length > 0) {
+      const instanceIndex = parentInstance.childInstances.findIndex(childInstance => childInstance.key === instance.key);
+
+      if (instanceIndex === 0) {
+        newChildInstance = instantiate(parentInstance.domElement, null, childElement, true);
+      } else if (instanceIndex === parentInstance.childInstances.length - 1) {
+        newChildInstance = instantiate(parentInstance.domElement, null, childElement);
+      } else {
+        const insertAfter = parentInstance.childInstances[instanceIndex - 1].domElement;
+        newChildInstance = instantiate(parentInstance.domElement, null, childElement, false, insertAfter);
+      }
+    } else {
+      newChildInstance = instantiate(parentInstance.domElement, null, childElement);
     }
   }
+
+  newInstances.push(newChildInstance);
 }
 
 function reconcileChildren(instance, element) {

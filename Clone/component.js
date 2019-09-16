@@ -7,11 +7,11 @@ class Component {
     this.state = {};
   }
 
-  setState(partialState, callback) {
-    if (isFunction(partialState)) {
-      updateCompositeInstance(this, partialState(this.state, this.props));
+  setState(state, callback) {
+    if (isFunction(state)) {
+      updateCompositeInstance(this, state(this.state, this.props));
     } else {
-      updateCompositeInstance(this, partialState);
+      updateCompositeInstance(this, state);
     }
 
     if (isFunction(callback)) {
@@ -20,11 +20,9 @@ class Component {
   }
 
   componentDidMount() {
-    console.log("didMount")
   }
 
   componentWillUnmount() {
-    console.log("willUnmount")
   }
 
   shouldComponentUpdate() {
@@ -32,14 +30,12 @@ class Component {
   }
 
   componentDidUpdate() {
-    console.log("didUpdate")
   }
 
   forceUpdate() {
     forceUpdateCompositeInstance(this)
   }
 }
-
 
 class PureComponent extends Component {
 

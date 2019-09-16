@@ -1,15 +1,6 @@
 import * as Clone from "../Clone/root";
 import classes from "./index.css";
 
-// const items = [
-//   "Item One",
-//   "Item Two",
-//   "Item Three",
-//   "Item Four",
-//   "Item Five",
-//   "Item Six",
-// ];
-
 class App extends Clone.Component {
   constructor(props) {
     super(props);
@@ -19,9 +10,9 @@ class App extends Clone.Component {
   }
 
   removeItem() {
-    this.setState({
-      itemsCount: this.state.itemsCount - 1
-    })
+    this.setState((prevState) => ({
+      itemsCount: this.state.itemsCount > 0 ? this.state.itemsCount - 1 : this.state.itemsCount
+    }))
   }
 
   appendItem() {
@@ -38,7 +29,7 @@ class App extends Clone.Component {
           {
             item: `Item ${index}`,
             key: `Item ${index}`,
-            itemsCount: this.state.itemsCount,
+            itemsCount: this.state.itemsCount + 2,
           },
         )
       } else {
@@ -83,7 +74,7 @@ class App extends Clone.Component {
           {},
           'Last Static List Item'
         ),
-      )
+      ),
     );
   }
 }

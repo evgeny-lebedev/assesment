@@ -6,15 +6,11 @@ function createElement(type, config, ...args) {
 
   validateArgs(args);
 
-  const rawChildren = [...args];
+  const rawChildren = filterValid([...args]);
 
-  props.children = filterValid(rawChildren).map(child => child instanceof Object ? child : createTextElement(child));
+  props.children = rawChildren.map(child => child instanceof Object ? child : createTextElement(child));
 
   return { type, props };
-}
-
-function createTextElement(value) {
-  return createElement(TEXT_ELEMENT, { nodeValue: value });
 }
 
 function validateArgs(args) {
@@ -29,6 +25,10 @@ function validateArgs(args) {
       errorToConsole(ERROR_TYPES.noKeys);
     }
   });
+}
+
+function createTextElement(value) {
+  return createElement(TEXT_ELEMENT, { nodeValue: value });
 }
 
 export { createElement };

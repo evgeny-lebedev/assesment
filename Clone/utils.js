@@ -9,7 +9,7 @@ function isElementComponent(element) {
   return element && typeof element.type === FUNCTION;
 }
 
-function isInstanceTypeArray(instance) {
+function isInstanceArrayType(instance) {
   return instance.type === ARRAY;
 }
 
@@ -26,7 +26,7 @@ function isInstanceOfPureComponent(componentInstance) {
 }
 
 function isValid(item) {
-  return !!item;
+  return item === 0 || !!item;
 }
 
 function filterValid(items) {
@@ -127,5 +127,5 @@ export {
   getElementByKey,
   getInstanceByKey,
   checkKeys,
-  isInstanceTypeArray,
+  isInstanceArrayType,
 };

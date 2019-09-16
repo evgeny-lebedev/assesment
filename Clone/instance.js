@@ -1,6 +1,6 @@
-import { createDomElement } from "./domUtils";
-import { filterValid, isElementComponent, isInstanceTypeArray, isValid } from "./utils";
-import { ARRAY, KEY } from "./constants";
+import { createDomElement, performDomChanges } from "./domUtils";
+import { filterValid, isElementComponent, isInstanceArrayType, isValid } from "./utils";
+import { ARRAY, DOM_CHANGES_TYPES, KEY } from "./constants";
 
 function createInstance(element) {
   if (!isValid(element)) {
@@ -9,7 +9,9 @@ function createInstance(element) {
 
   if (Array.isArray(element)) {
     return createArrayInstance(element)
-  } else if (isElementComponent(element)) {
+  }
+
+  if (isElementComponent(element)) {
     const instance = {};
     const componentInstance = createComponentInstance(element, instance);
     const childElement = componentInstance.render();
@@ -23,7 +25,7 @@ function createInstance(element) {
 
     Object.assign(instance, { domElement, element, childInstance, componentInstance });
 
-    if (element.props.key){
+    if (element.props.key) {
       instance.key = element.props.key;
     }
 
@@ -33,38 +35,43 @@ function createInstance(element) {
     const childElements = element.props.children || [];
     const childInstances = childElements.map(createInstance);
     const instance = { domElement, element, childInstances };
+    const handleChildInstance = getHandleChildInstance(domElement);
 
-    filterValid(childInstances).forEach((childInstance, index) => {
-      if (isInstanceTypeArray(childInstance)) {
-        const filtered = filterValid(childInstance.instances);
+    filterValid(childInstances).forEach(handleChildInstance);
 
-        filtered.forEach(instance => {
-          if (instance.element.props.hasOwnProperty(KEY)) {
-            instance.key = instance.element.props.key;
-          } else {
-            instance.key = index;
-          }
-
-          domElement.appendChild(instance.domElement);
-        });
-
-        childInstance.key = index;
-      } else {
-        childInstance.key = index;
-
-        domElement.appendChild(childInstance.domElement);
-      }
-
-      if (childInstance.componentInstance) {
-        childInstance.componentInstance.componentDidMount();
-      }
-    });
-
-    if (element.props.key){
+    if (element.props.key) {
       instance.key = element.props.key;
     }
 
     return instance;
+  }
+}
+
+function getHandleChildInstance(container) {
+  return function (childInstance, index) {
+    if (isInstanceArrayType(childInstance)) {
+      const filtered = filterValid(childInstance.instances);
+
+      filtered.forEach(instance => {
+        if (instance.element.props.hasOwnProperty(KEY)) {
+          instance.key = instance.element.props.key;
+        } else {
+          instance.key = index;
+        }
+
+        performDomChanges(DOM_CHANGES_TYPES.append, container, instance.domElement);
+      });
+
+      childInstance.key = index;
+    } else {
+      childInstance.key = index;
+
+      performDomChanges(DOM_CHANGES_TYPES.append, container, childInstance.domElement);
+    }
+
+    if (childInstance.componentInstance) {
+      childInstance.componentInstance.componentDidMount();
+    }
   }
 }
 

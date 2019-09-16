@@ -29,4 +29,4 @@ function render(element, container) {
   root.setRootInstance(newRootInstance);
 }
 
-export { render, createElement, Component, PureComponent};
+export { render, createElement, Component, PureComponent };

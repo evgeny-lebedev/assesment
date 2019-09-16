@@ -1,4 +1,4 @@
-import { INSERTION_TYPES, TEXT_ELEMENT } from "./constants";
+import { DOM_CHANGES_TYPES, TEXT_ELEMENT } from "./constants";
 import { isPropAttribute, isPropEvent, isPropGone, isPropNew } from "./utils";
 
 function updateDomElementProperties(domElement, prevProps, nextProps) {
@@ -76,54 +76,50 @@ function createDomElement(element) {
 }
 
 function prependDomElement(container, element) {
-    container.prepend(element)
+  container.prepend(element)
 }
 
 function appendDomElement(container, element) {
-    container.append(element)
+  container.append(element)
 }
 
-function insertDomElementBefore(container, element) {
-    container.before(element)
+function insertDomElementBefore(element, insertableElement) {
+  element.before(insertableElement)
 }
 
-function insertDomElementAfter(container, element) {
-    container.after(element)
+function insertDomElementAfter(element, insertableElement) {
+  element.after(insertableElement)
 }
 
-// todo: replaceWith
-
-function replaceDomElement(container, element, newElement) {
-    container.removeChild(instance.domElement);
-
-    container.appendChild(newElement);
+function replaceDomElement(element, newElement) {
+  element.replaceWith(newElement);
 }
 
-function removeDomElement(container, element) {
-    container.removeChild(element)
+function removeDomElement(element) {
+  element.remove();
 }
 
-function insertDomElement(insertionType, container, domElement, newDomElement) {
+function performDomChanges(insertionType, container, domElement, newDomElement) {
   switch (insertionType) {
-    case INSERTION_TYPES.prepend:
+    case DOM_CHANGES_TYPES.prepend:
       prependDomElement(container, domElement);
       break;
-    case INSERTION_TYPES.append:
+    case DOM_CHANGES_TYPES.append:
       appendDomElement(container, domElement);
       break;
-    case INSERTION_TYPES.insertBefore:
+    case DOM_CHANGES_TYPES.insertBefore:
       insertDomElementBefore(container, domElement);
       break;
-    case INSERTION_TYPES.insertAfter:
+    case DOM_CHANGES_TYPES.insertAfter:
       insertDomElementAfter(container, domElement);
       break;
-    case INSERTION_TYPES.replace:
-      replaceDomElement(container, domElement, newDomElement);
+    case DOM_CHANGES_TYPES.replace:
+      replaceDomElement(domElement, newDomElement);
       break;
-    case INSERTION_TYPES.remove:
-      removeDomElement(container, domElement);
+    case DOM_CHANGES_TYPES.remove:
+      removeDomElement(domElement);
       break;
   }
 }
 
-export { updateDomElementProperties, createDomElement, insertDomElement };
+export { updateDomElementProperties, createDomElement, performDomChanges };

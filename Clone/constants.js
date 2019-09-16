@@ -21,7 +21,7 @@ const ERROR_MESSAGES = {
   [ERROR_TYPES.invalidKeys]: "Invalid keys provided",
 };
 
-const INSERTION_TYPES = {
+const DOM_CHANGES_TYPES = {
   prepend: "prepend",
   append: "append",
   insertBefore: "insertBefore",
@@ -30,4 +30,4 @@ const INSERTION_TYPES = {
   remove: "remove",
 };
 
-export { ERROR_TYPES, ERROR_MESSAGES, INSERTION_TYPES, TEXT_ELEMENT, ON, CHILDREN, STYLE, FUNCTION, KEY, BOOLEAN, ARRAY };
+export { ERROR_TYPES, ERROR_MESSAGES, DOM_CHANGES_TYPES, TEXT_ELEMENT, ON, CHILDREN, STYLE, FUNCTION, KEY, BOOLEAN, ARRAY };
