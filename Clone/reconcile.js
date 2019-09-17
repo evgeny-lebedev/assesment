@@ -1,7 +1,6 @@
 import { createInstance } from "./instance";
 import { performDomChanges, updateDomElementProperties } from "./domUtils";
 import {
-  checkKeys,
   filterValid, getElementByKey, getInstanceByKey,
   isElementComponent,
   isEqual,
@@ -202,9 +201,6 @@ function reconcileChildren(instance, element) {
     }
   });
 
-  const filteredChildInstances = filterValid(newInstances);
-
-  checkKeys(filteredChildInstances);
 
   return filterValid(newInstances);
 }

@@ -1,5 +1,5 @@
-import { ERROR_TYPES, TEXT_ELEMENT } from "./constants";
-import { hasElementsKeys, errorToConsole, filterValid } from "./utils";
+import { TEXT_ELEMENT, WARNING_TYPES } from "./constants";
+import { hasElementsKeys, filterValid, checkKeys, showWarning } from "./utils";
 
 function createElement(type, config, ...args) {
   const props = { ...config };
@@ -16,13 +16,15 @@ function createElement(type, config, ...args) {
 function validateArgs(args) {
   const arrays = args.filter(arg => Array.isArray(arg));
 
-  arrays.forEach(array => {
+  arrays.forEach((array) => {
     const arrayHasKeys = hasElementsKeys(filterValid(array));
 
     if (!arrayHasKeys) {
       array.forEach((element, index) => element.props = { ...element.props, key: index });
 
-      errorToConsole(ERROR_TYPES.noKeys);
+      showWarning(WARNING_TYPES.noKeys);
+    } else {
+      checkKeys(array)
     }
   });
 }

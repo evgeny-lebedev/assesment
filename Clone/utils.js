@@ -1,4 +1,15 @@
-import { ARRAY, BOOLEAN, CHILDREN, ERROR_MESSAGES, ERROR_TYPES, FUNCTION, KEY, ON, STYLE } from "./constants";
+import {
+  ARRAY,
+  BOOLEAN,
+  CHILDREN,
+  ERROR_MESSAGES,
+  ERROR_TYPES,
+  FUNCTION,
+  KEY,
+  ON,
+  STYLE,
+  WARNING_MESSAGES
+} from "./constants";
 import { PureComponent } from "./component";
 
 function isFunction(item) {
@@ -53,8 +64,8 @@ function isPropGone(prev, next) {
   }
 }
 
-function errorToConsole(errorType) {
-  console.error(ERROR_MESSAGES[errorType])
+function showWarning(errorType) {
+  console.error(WARNING_MESSAGES[errorType])
 }
 
 function throwError(errorType) {
@@ -69,19 +80,21 @@ function isValidContainer(container) {
   return container instanceof Element;
 }
 
-// function isValidKey(key) {
-//   if (key === 0) {
-//     return true;
-//   }
-//   if (key instanceof Object) {
-//     return false
-//   }
-//   if (typeof key === BOOLEAN) {
-//     return false
-//   }
-//
-//   return !!key;
-// }
+function isValidKey(key) {
+  if (key === 0) {
+    return true;
+  }
+
+  if (key instanceof Object) {
+    return false
+  }
+
+  if (typeof key === BOOLEAN) {
+    return false
+  }
+
+  return !!key;
+}
 
 function hasElementsKeys(elements) {
   return elements.every(element => element.props.hasOwnProperty(KEY))
@@ -95,12 +108,16 @@ function getInstanceByKey(instances, key) {
   return instances.find(instance => instance.key === key)
 }
 
-function checkKeys(instances) {
-  instances.forEach((instance, index) => {
+function checkKeys(elements) {
+  elements.forEach((element, index) => {
     if (index > 0) {
-      const currentKey = instance.key;
-      const prevKey = instances[index - 1].key;
-      //todo invalid key(can not be object)
+      const currentKey = element.props.key;
+      const prevKey = elements[index - 1].props.key;
+
+      if (!isValidKey(currentKey)){
+        throwError(ERROR_TYPES.invalidKeys)
+      }
+
       if (prevKey === currentKey) {
         throwError(ERROR_TYPES.duplicateKeys)
       }
@@ -111,7 +128,7 @@ function checkKeys(instances) {
 export {
   isValidElement,
   isValidContainer,
-  errorToConsole,
+  showWarning,
   throwError,
   isFunction,
   isElementComponent,

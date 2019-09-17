@@ -1,4 +1,4 @@
-import { errorToConsole, isValidContainer, isValidElement } from "./utils";
+import { isValidContainer, isValidElement, throwError } from "./utils";
 import { ERROR_TYPES } from "./constants";
 import { reconcile } from "./reconcile";
 import { createElement } from "./element";
@@ -16,11 +16,11 @@ const root = {
 
 function render(element, container) {
   if (!isValidElement(element)) {
-    errorToConsole(ERROR_TYPES.invalidElement)
+    throwError(ERROR_TYPES.invalidElement)
   }
 
   if (!isValidContainer(container)) {
-    errorToConsole(ERROR_TYPES.invalidContainer)
+    throwError(ERROR_TYPES.invalidContainer)
   }
 
   const oldRootInstance = root.getRootInstance();
