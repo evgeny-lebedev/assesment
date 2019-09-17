@@ -69,19 +69,19 @@ function isValidContainer(container) {
   return container instanceof Element;
 }
 
-function isValidKey(key) {
-  if (key === 0) {
-    return true;
-  }
-  if (key instanceof Object) {
-    return false
-  }
-  if (typeof key === BOOLEAN) {
-    return false
-  }
-
-  return !!key;
-}
+// function isValidKey(key) {
+//   if (key === 0) {
+//     return true;
+//   }
+//   if (key instanceof Object) {
+//     return false
+//   }
+//   if (typeof key === BOOLEAN) {
+//     return false
+//   }
+//
+//   return !!key;
+// }
 
 function hasElementsKeys(elements) {
   return elements.every(element => element.props.hasOwnProperty(KEY))
@@ -100,9 +100,9 @@ function checkKeys(instances) {
     if (index > 0) {
       const currentKey = instance.key;
       const prevKey = instances[index - 1].key;
-
-      if (!isValidKey(prevKey) || !isValidKey(currentKey) || (prevKey === currentKey)) {
-        throwError(ERROR_TYPES.invalidKeys)
+      //todo invalid key(can not be object)
+      if (prevKey === currentKey) {
+        throwError(ERROR_TYPES.duplicateKeys)
       }
     }
   });

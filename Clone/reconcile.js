@@ -136,8 +136,8 @@ function reconcileArray(parentInstance, instance, elements) {
       newInstances.push(newChildInstance);
     })
   } else {
-    elements.forEach((childElement, childElementIndex) => {
-      const key = childElement.props.key || childElementIndex;
+    elements.forEach((childElement) => {
+      const key = childElement.props.key;
       const childInstance = getInstanceByKey(oldInstances, key);
       if (!childInstance) {
         reconcileNewArrayInstance(parentInstance, instance, childElement, newInstances);

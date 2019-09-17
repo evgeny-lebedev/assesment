@@ -11,14 +11,14 @@ const ERROR_TYPES = {
   noKeys: "noKeys",
   invalidElement: "invalidElement",
   invalidContainer: "invalidContainer",
-  invalidKeys: "invalidKeys",
+  duplicateKeys: "duplicateKeys",
 };
 
 const ERROR_MESSAGES = {
-  [ERROR_TYPES.noKeys]: "Each item of array should have a \"key\" property for better performance",
+  [ERROR_TYPES.noKeys]: "Warning: Each child in a list should have a unique \"key\" prop",
   [ERROR_TYPES.invalidElement]: "You must pass a valid element to \"render\" function as a first argument",
   [ERROR_TYPES.invalidContainer]: "You must pass a valid container to \"render\" function as a second argument",
-  [ERROR_TYPES.invalidKeys]: "Invalid keys provided",
+  [ERROR_TYPES.duplicateKeys]: "Warning: Encountered two children with the same key. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted.",
 };
 
 const DOM_CHANGES_TYPES = {
