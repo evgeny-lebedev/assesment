@@ -201,7 +201,6 @@ function reconcileChildren(instance, element) {
     }
   });
 
-
   return filterValid(newInstances);
 }
 

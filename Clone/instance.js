@@ -1,9 +1,9 @@
 import { createDomElement, performDomChanges } from "./domUtils";
-import { filterValid, isElementComponent, isInstanceArrayType, isValid } from "./utils";
+import { filterValid, isElementComponent, isInstanceArrayType, isElementValid } from "./utils";
 import { ARRAY, DOM_CHANGES_TYPES, KEY } from "./constants";
 
 function createInstance(element) {
-  if (!isValid(element)) {
+  if (!isElementValid(element)) {
     return null;
   }
 
@@ -17,7 +17,7 @@ function createInstance(element) {
     const childElement = componentInstance.render();
     const childInstance = createInstance(childElement);
 
-    if (childInstance == null) {
+    if (childInstance === null) {
       return null;
     }
 
@@ -25,9 +25,7 @@ function createInstance(element) {
 
     Object.assign(instance, { domElement, element, childInstance, componentInstance });
 
-    if (element.props.key) {
-      instance.key = element.props.key;
-    }
+    instance.key = element.props.key;
 
     return instance;
   } else {
@@ -39,9 +37,7 @@ function createInstance(element) {
 
     filterValid(childInstances).forEach(handleChildInstance);
 
-    if (element.props.key) {
-      instance.key = element.props.key;
-    }
+    instance.key = element.props.key;
 
     return instance;
   }

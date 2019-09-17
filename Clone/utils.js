@@ -72,15 +72,15 @@ function throwError(errorType) {
   throw new Error(ERROR_MESSAGES[errorType])
 }
 
-function isValidElement(element) {
+function isElementValid(element) {
   return isValid(element);
 }
 
-function isValidContainer(container) {
+function isContainerValid(container) {
   return container instanceof Element;
 }
 
-function isValidKey(key) {
+function isKeyValid(key) {
   if (key === 0) {
     return true;
   }
@@ -114,7 +114,7 @@ function checkKeys(elements) {
       const currentKey = element.props.key;
       const prevKey = elements[index - 1].props.key;
 
-      if (!isValidKey(currentKey)){
+      if (!isKeyValid(currentKey)){
         throwError(ERROR_TYPES.invalidKeys)
       }
 
@@ -126,8 +126,8 @@ function checkKeys(elements) {
 }
 
 export {
-  isValidElement,
-  isValidContainer,
+  isElementValid,
+  isContainerValid,
   showWarning,
   throwError,
   isFunction,

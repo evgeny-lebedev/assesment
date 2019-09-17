@@ -1,4 +1,5 @@
-const TEXT_ELEMENT = "TEXT ELEMENT";
+const TEXT_ELEMENT = "textElement";
+const STRING = "string";
 const ON = "on";
 const CHILDREN = "children";
 const STYLE = "style";
@@ -38,4 +39,19 @@ const DOM_CHANGES_TYPES = {
   remove: "remove",
 };
 
-export { WARNING_TYPES, ERROR_TYPES, WARNING_MESSAGES, ERROR_MESSAGES, DOM_CHANGES_TYPES, TEXT_ELEMENT, ON, CHILDREN, STYLE, FUNCTION, KEY, BOOLEAN, ARRAY };
+export {
+  WARNING_TYPES,
+  ERROR_TYPES,
+  WARNING_MESSAGES,
+  ERROR_MESSAGES,
+  DOM_CHANGES_TYPES,
+  TEXT_ELEMENT,
+  STRING,
+  ON,
+  CHILDREN,
+  STYLE,
+  FUNCTION,
+  KEY,
+  BOOLEAN,
+  ARRAY
+};

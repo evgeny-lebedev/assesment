@@ -10,9 +10,9 @@ class App extends Clone.Component {
   }
 
   removeItem() {
-    this.setState((prevState) => ({
+    this.setState({
       itemsCount: this.state.itemsCount > 0 ? this.state.itemsCount - 1 : this.state.itemsCount
-    }))
+    })
   }
 
   appendItem() {
@@ -28,7 +28,7 @@ class App extends Clone.Component {
           ListItem,
           {
             item: `Item ${index}`,
-            key: `Item ${index}`,
+            // key: `Item ${index}`,
             itemsCount: this.state.itemsCount + 2,
           },
         )

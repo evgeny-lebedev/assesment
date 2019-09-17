@@ -1,36 +1,42 @@
-import { TEXT_ELEMENT, WARNING_TYPES } from "./constants";
-import { hasElementsKeys, filterValid, checkKeys, showWarning } from "./utils";
+import { STRING, TEXT_ELEMENT, WARNING_TYPES } from "./constants";
+import { hasElementsKeys, filterValid, checkKeys, showWarning, isElementValid } from "./utils";
 
-function createElement(type, config, ...args) {
-  const props = { ...config };
-
-  validateArgs(args);
-
-  const rawChildren = filterValid([...args]);
-
-  props.children = rawChildren.map(child => child instanceof Object ? child : createTextElement(child));
+function createElement(type, config, ...rawChildren) {
+  const children = handleRawChildren(rawChildren);
+  const props = { ...config, children };
 
   return { type, props };
 }
 
-function validateArgs(args) {
-  const arrays = args.filter(arg => Array.isArray(arg));
+function handleRawChildren(rawChildren) {
 
-  arrays.forEach((array) => {
-    const arrayHasKeys = hasElementsKeys(filterValid(array));
+  const withKeys = rawChildren.map((rawChild, index) => {
+    if (Array.isArray(rawChild)) {
+      const hasKeys = hasElementsKeys(filterValid(rawChild));
 
-    if (!arrayHasKeys) {
-      array.forEach((element, index) => element.props = { ...element.props, key: index });
+      if (!hasKeys) {
+        showWarning(WARNING_TYPES.noKeys);
 
-      showWarning(WARNING_TYPES.noKeys);
-    } else {
-      checkKeys(array)
+        return rawChild.map((element, index) => ({ ...element, props: { ...element.props, key: index } }));
+      } else {
+        checkKeys(rawChild);
+
+        return rawChild;
+      }
     }
+
+    if (typeof rawChild !== STRING && isElementValid(rawChild)) {
+      return { ...rawChild, props: { ...rawChild.props, key: index } }
+    }
+
+    return rawChild;
   });
+
+  return filterValid(withKeys).map((child, index) => child instanceof Object ? child : createTextElement(child, index))
 }
 
-function createTextElement(value) {
-  return createElement(TEXT_ELEMENT, { nodeValue: value });
+function createTextElement(nodeValue, key) {
+  return createElement(TEXT_ELEMENT, { nodeValue, key });
 }
 
 export { createElement };
