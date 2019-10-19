@@ -1,5 +1,5 @@
 import { createInstance } from "./instance";
-import { performDomChanges, updateDomElementProperties } from "./domUtils";
+import { performDomUpdate, updateDomElementProperties } from "./domUtils";
 import {
   filterValid, getElementByKey, getInstanceByKey,
   isElementComponent,
@@ -47,11 +47,11 @@ function instantiate(container, instance, element, prepend, insertAfter) {
   }
 
   if (prepend) {
-    performDomChanges(DOM_CHANGES_TYPES.prepend, container, newInstance.domElement);
+    performDomUpdate(DOM_CHANGES_TYPES.prepend, container, newInstance.domElement);
   } else if (insertAfter) {
-    performDomChanges(DOM_CHANGES_TYPES.insertAfter, insertAfter, newInstance.domElement);
+    performDomUpdate(DOM_CHANGES_TYPES.insertAfter, insertAfter, newInstance.domElement);
   } else {
-    performDomChanges(DOM_CHANGES_TYPES.append, container, newInstance.domElement);
+    performDomUpdate(DOM_CHANGES_TYPES.append, container, newInstance.domElement);
   }
 
   if (isElementComponent(element)) {
@@ -66,7 +66,7 @@ function remove(container, instance) {
     instance.componentInstance.componentWillUnmount();
   }
 
-  performDomChanges(DOM_CHANGES_TYPES.remove, container, instance.domElement);
+  performDomUpdate(DOM_CHANGES_TYPES.remove, container, instance.domElement);
 
   return null;
 }
@@ -78,7 +78,7 @@ function replace(container, instance, element) {
     newInstance.componentInstance.componentWillUnmount();
   }
 
-  performDomChanges(DOM_CHANGES_TYPES.replace, container, instance.domElement, newInstance.domElement);
+  performDomUpdate(DOM_CHANGES_TYPES.replace, container, instance.domElement, newInstance.domElement);
 
   if (isElementComponent(element)) {
     newInstance.componentInstance.componentDidMount()

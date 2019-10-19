@@ -28,7 +28,7 @@ class App extends Clone.Component {
           ListItem,
           {
             item: `Item ${index}`,
-            // key: `Item ${index}`,
+            key: `Item ${index}`,
             itemsCount: this.state.itemsCount + 2,
           },
         )

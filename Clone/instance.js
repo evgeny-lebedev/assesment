@@ -1,4 +1,4 @@
-import { createDomElement, performDomChanges } from "./domUtils";
+import { createDomElement, performDomUpdate } from "./domUtils";
 import { filterValid, isElementComponent, isInstanceArrayType, isElementValid } from "./utils";
 import { ARRAY, DOM_CHANGES_TYPES, KEY } from "./constants";
 
@@ -55,14 +55,14 @@ function getHandleChildInstance(container) {
           instance.key = index;
         }
 
-        performDomChanges(DOM_CHANGES_TYPES.append, container, instance.domElement);
+        performDomUpdate(DOM_CHANGES_TYPES.append, container, instance.domElement);
       });
 
       childInstance.key = index;
     } else {
       childInstance.key = index;
 
-      performDomChanges(DOM_CHANGES_TYPES.append, container, childInstance.domElement);
+      performDomUpdate(DOM_CHANGES_TYPES.append, container, childInstance.domElement);
     }
 
     if (childInstance.componentInstance) {

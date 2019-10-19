@@ -99,7 +99,7 @@ function removeDomElement(element) {
   element.remove();
 }
 
-function performDomChanges(insertionType, container, domElement, newDomElement) {
+function performDomUpdate(insertionType, container, domElement, newDomElement) {
   switch (insertionType) {
     case DOM_CHANGES_TYPES.prepend:
       prependDomElement(container, domElement);
@@ -122,4 +122,4 @@ function performDomChanges(insertionType, container, domElement, newDomElement) 
   }
 }
 
-export { updateDomElementProperties, createDomElement, performDomChanges };
+export { updateDomElementProperties, createDomElement, performDomUpdate };
